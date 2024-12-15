@@ -1,0 +1,11 @@
+#!/bin/sh
+files=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(tsx|ts|jsx|js|css)$' || true)
+
+if [ -z "$files" ]; then
+  echo "No staged files to lint or format. Skipping ESLint and Prettier."
+  exit 0
+fi
+
+echo "Running ESLint and Prettier on staged files..."
+npx eslint --fix $files
+npx prettier --write $files
