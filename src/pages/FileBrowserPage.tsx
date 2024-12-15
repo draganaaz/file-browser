@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import FileTreeView from '../components/FileTreeView/FileTreeView';
 import { FileNode } from '../types/FileNode';
 import { FILE_TYPE } from '../constants/enums';
 import Header from '../components/Header/Header';
+import { debounce } from '../utils/debounce';
 
 const initialData: FileNode[] = [
   { id: '1', name: 'public', type: FILE_TYPE.FOLDER },
@@ -12,6 +13,7 @@ const initialData: FileNode[] = [
 
 const FileBrowserPage: React.FC = () => {
   const [fileTree, setFileTree] = useState<FileNode[]>(initialData);
+  const [filter, setFilter] = useState('');
 
   const handleAdd = (parentId: string) => {
     const newItem: FileNode = {
@@ -47,14 +49,39 @@ const FileBrowserPage: React.FC = () => {
     setFileTree((prevTree) => deleteNode(prevTree));
   };
 
+  const filterTree = (nodes: FileNode[], query: string): FileNode[] => {
+    if (!query) {
+      return nodes;
+    }
+
+    return nodes.reduce<FileNode[]>((acc, node) => {
+      if (node.name.toLowerCase().includes(query.toLowerCase())) {
+        acc.push(node);
+      } else if (node.children) {
+        const filteredChildren = filterTree(node.children, query);
+        if (filteredChildren.length > 0) {
+          acc.push({ ...node, children: filteredChildren });
+        }
+      }
+      return acc;
+    }, []);
+  };
+
+  const debouncedFilter = useCallback(
+    debounce((value: string) => setFilter(value), 500),
+    []
+  );
+
+  const filteredTree = filterTree(fileTree, filter);
+
   return (
     <div className="flex flex-col h-screen">
-      <Header />
+      <Header handleFilter={debouncedFilter} />
       <div className="flex flex-1">
         <div className="w-1/3 border-r p-4">
           <h2 className="text-lg font-bold mb-2">File Browser</h2>
           <FileTreeView
-            data={fileTree}
+            data={filteredTree}
             onAdd={handleAdd}
             onDelete={handleDelete}
           />
