@@ -1,0 +1,94 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FileTreeView Component matches the snapshot 1`] = `
+<DocumentFragment>
+  <ul
+    class="p-2"
+  >
+    <li
+      class="relative mb-2"
+    >
+      <div
+        class="flex items-center justify-between p-2 rounded hover:bg-gray-200 transition duration-200 cursor-pointer"
+      >
+        <div
+          class="flex items-center gap-2"
+        >
+          <span>
+            📁
+          </span>
+          <span>
+            public
+          </span>
+        </div>
+        <div
+          class="relative"
+        >
+          <button
+            class="text-gray-600 hover:text-gray-800 px-2 py-0.5"
+            data-testid="menu-button"
+          >
+            ⋮
+          </button>
+        </div>
+      </div>
+    </li>
+    <li
+      class="relative mb-2"
+    >
+      <div
+        class="flex items-center justify-between p-2 rounded hover:bg-gray-200 transition duration-200 cursor-pointer"
+      >
+        <div
+          class="flex items-center gap-2"
+        >
+          <span>
+            📁
+          </span>
+          <span>
+            server
+          </span>
+        </div>
+        <div
+          class="relative"
+        >
+          <button
+            class="text-gray-600 hover:text-gray-800 px-2 py-0.5"
+            data-testid="menu-button"
+          >
+            ⋮
+          </button>
+        </div>
+      </div>
+    </li>
+    <li
+      class="relative mb-2"
+    >
+      <div
+        class="flex items-center justify-between p-2 rounded hover:bg-gray-200 transition duration-200 cursor-pointer"
+      >
+        <div
+          class="flex items-center gap-2"
+        >
+          <span>
+            📁
+          </span>
+          <span>
+            src
+          </span>
+        </div>
+        <div
+          class="relative"
+        >
+          <button
+            class="text-gray-600 hover:text-gray-800 px-2 py-0.5"
+            data-testid="menu-button"
+          >
+            ⋮
+          </button>
+        </div>
+      </div>
+    </li>
+  </ul>
+</DocumentFragment>
+`;

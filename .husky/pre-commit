@@ -1,11 +1,26 @@
 #!/bin/sh
+set -e
+
+# Find staged files and apply ESLint and Prettier
 files=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(tsx|ts|jsx|js|css)$' || true)
 
 if [ -z "$files" ]; then
   echo "No staged files to lint or format. Skipping ESLint and Prettier."
-  exit 0
+else
+  echo "Running ESLint and Prettier on staged files..."
+  npx eslint --fix $files
+  npx prettier --write $files
 fi
 
-echo "Running ESLint and Prettier on staged files..."
-npx eslint --fix $files
-npx prettier --write $files
+# Tests
+echo "Running all tests..."
+npx jest --bail --watchAll=false
+
+# Block commit and return error message if tests fail
+if [ $? -ne 0 ]; then
+  echo "Tests failed. Commit aborted."
+  exit 1
+fi
+
+echo "All checks passed. Proceeding with commit."
+exit 0

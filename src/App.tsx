@@ -1,11 +1,7 @@
 import FileBrowserPage from './pages/FileBrowserPage';
 
 function App() {
-  return (
-    <div className="App">
-      <FileBrowserPage />
-    </div>
-  );
+  return <FileBrowserPage />;
 }
 
 export default App;

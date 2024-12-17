@@ -2,9 +2,9 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import Header from './Header';
 
-describe('Header Component', () => {
-  const mockHandleFilter = jest.fn();
+const mockHandleFilter = jest.fn();
 
+describe('Header Component', () => {
   beforeEach(() => {
     mockHandleFilter.mockClear();
   });
