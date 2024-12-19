@@ -6,6 +6,7 @@ interface FileTreeViewProps {
   data: FileNode[];
   onAdd: (parentId: string, name: string, type: FILE_TYPE) => void;
   onDelete: (nodeId: string) => void;
+  onSelect: (node: FileNode, path: string[]) => void;
 }
 
 const VALID_EXTENSIONS = {
@@ -37,6 +38,7 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({
   data,
   onAdd,
   onDelete,
+  onSelect,
 }) => {
   const [menuNodeId, setMenuNodeId] = useState<string | null>(null);
   const [addMenuOpenId, setAddMenuOpenId] = useState<string | null>(null);
@@ -137,53 +139,63 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({
     </div>
   );
 
-  const renderTree = (nodes: FileNode[]) =>
-    nodes.map((node) => (
-      <li key={node.id} className="relative mb-2">
-        <div className="flex items-center justify-between p-2 rounded hover:bg-gray-200 transition duration-200 cursor-pointer">
-          <div className="flex items-center gap-2">
-            <span>{node.type === FILE_TYPE.FOLDER ? '📁' : '📄'}</span>
-            <span>{node.name}</span>
+  const renderTree = (nodes: FileNode[], path: string[] = ['My Files']) =>
+    nodes.map((node) => {
+      const newPath = [...path, node.name];
+
+      return (
+        <li key={node.id} className="relative mb-2">
+          <div
+            className="flex items-center justify-between p-2 rounded hover:bg-gray-200 cursor-pointer"
+            onClick={() => onSelect(node, newPath)}
+          >
+            <span data-testid={`folder-name-${node.id}`}>
+              {node.type === FILE_TYPE.FOLDER ? '📁' : '📄'} {node.name}
+            </span>
+            <div className="relative">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setMenuNodeId(menuNodeId === node.id ? null : node.id);
+                }}
+                className="text-gray-600 hover:text-gray-800 px-2 py-0.5"
+                data-testid="menu-button"
+              >
+                ⋮
+              </button>
+              {menuNodeId === node.id &&
+                renderActionsMenu(node.id, node.type === FILE_TYPE.FOLDER)}
+            </div>
           </div>
-          <div className="relative">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setMenuNodeId(menuNodeId === node.id ? null : node.id);
-              }}
-              className="text-gray-600 hover:text-gray-800 px-2 py-0.5"
-              data-testid="menu-button"
-            >
-              ⋮
-            </button>
-            {menuNodeId === node.id &&
-              renderActionsMenu(node.id, node.type === FILE_TYPE.FOLDER)}
-          </div>
-        </div>
-        {activeParentId === node.id && (
-          <div className="ml-6 mt-2">
-            <input
-              type="text"
-              placeholder={`Enter ${itemType === FILE_TYPE.FOLDER ? 'folder' : 'file'} name`}
-              value={newItemName}
-              onChange={(e) => setNewItemName(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleConfirmAdd(node.id)}
-              onBlur={() => handleConfirmAdd(node.id)}
-              autoFocus
-              className="border rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            {errorMessage && (
-              <p className="text-red-500 text-sm mt-1">{errorMessage}</p>
-            )}
-          </div>
-        )}
-        {node.children && <ul className="ml-6">{renderTree(node.children)}</ul>}
-      </li>
-    ));
+          {activeParentId === node.id && (
+            <div className="ml-6 mt-2">
+              <input
+                type="text"
+                placeholder={`Enter ${itemType === FILE_TYPE.FOLDER ? 'folder' : 'file'} name`}
+                value={newItemName}
+                onChange={(e) => setNewItemName(e.target.value)}
+                onKeyDown={(e) =>
+                  e.key === 'Enter' && handleConfirmAdd(node.id)
+                }
+                onBlur={() => handleConfirmAdd(node.id)}
+                autoFocus
+                className="border rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              {errorMessage && (
+                <p className="text-red-500 text-sm mt-1">{errorMessage}</p>
+              )}
+            </div>
+          )}
+          {node.children && (
+            <ul className="ml-4">{renderTree(node.children, newPath)}</ul>
+          )}
+        </li>
+      );
+    });
 
   return (
     <ul className="p-2">
-      {data.length > 0 ? renderTree(data) : <p>No data available</p>}
+      {data.length > 0 ? renderTree(data) : <p>No files available</p>}
     </ul>
   );
 };

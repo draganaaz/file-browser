@@ -7,6 +7,7 @@ import { FileNode } from '../../types/FileNode';
 describe('FileTreeView Component', () => {
   const mockOnAdd = jest.fn();
   const mockOnDelete = jest.fn();
+  const mockOnSelect = jest.fn();
 
   const mockInitialData: FileNode[] = [
     { id: '1', name: 'public', type: FILE_TYPE.FOLDER },
@@ -24,12 +25,13 @@ describe('FileTreeView Component', () => {
         data={mockInitialData}
         onAdd={mockOnAdd}
         onDelete={mockOnDelete}
+        onSelect={mockOnSelect}
       />
     );
 
-    expect(screen.getByText('public')).toBeInTheDocument();
-    expect(screen.getByText('server')).toBeInTheDocument();
-    expect(screen.getByText('src')).toBeInTheDocument();
+    expect(screen.getByTestId('folder-name-1')).toHaveTextContent('public');
+    expect(screen.getByTestId('folder-name-2')).toHaveTextContent('server');
+    expect(screen.getByTestId('folder-name-3')).toHaveTextContent('src');
   });
 
   it('opens the actions menu on button click', () => {
@@ -38,6 +40,7 @@ describe('FileTreeView Component', () => {
         data={mockInitialData}
         onAdd={mockOnAdd}
         onDelete={mockOnDelete}
+        onSelect={mockOnSelect}
       />
     );
 
@@ -54,6 +57,7 @@ describe('FileTreeView Component', () => {
         data={mockInitialData}
         onAdd={mockOnAdd}
         onDelete={mockOnDelete}
+        onSelect={mockOnSelect}
       />
     );
 
@@ -72,6 +76,7 @@ describe('FileTreeView Component', () => {
         data={mockInitialData}
         onAdd={mockOnAdd}
         onDelete={mockOnDelete}
+        onSelect={mockOnSelect}
       />
     );
 
@@ -93,6 +98,7 @@ describe('FileTreeView Component', () => {
         data={mockInitialData}
         onAdd={mockOnAdd}
         onDelete={mockOnDelete}
+        onSelect={mockOnSelect}
       />
     );
 
@@ -118,6 +124,7 @@ describe('FileTreeView Component', () => {
         data={mockInitialData}
         onAdd={mockOnAdd}
         onDelete={mockOnDelete}
+        onSelect={mockOnSelect}
       />
     );
 
@@ -137,6 +144,7 @@ describe('FileTreeView Component', () => {
         data={mockInitialData}
         onAdd={mockOnAdd}
         onDelete={mockOnDelete}
+        onSelect={mockOnSelect}
       />
     );
 

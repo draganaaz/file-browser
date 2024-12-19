@@ -9,18 +9,13 @@ exports[`FileTreeView Component matches the snapshot 1`] = `
       class="relative mb-2"
     >
       <div
-        class="flex items-center justify-between p-2 rounded hover:bg-gray-200 transition duration-200 cursor-pointer"
+        class="flex items-center justify-between p-2 rounded hover:bg-gray-200 cursor-pointer"
       >
-        <div
-          class="flex items-center gap-2"
+        <span
+          data-testid="folder-name-1"
         >
-          <span>
-            📁
-          </span>
-          <span>
-            public
-          </span>
-        </div>
+          📁 public
+        </span>
         <div
           class="relative"
         >
@@ -37,18 +32,13 @@ exports[`FileTreeView Component matches the snapshot 1`] = `
       class="relative mb-2"
     >
       <div
-        class="flex items-center justify-between p-2 rounded hover:bg-gray-200 transition duration-200 cursor-pointer"
+        class="flex items-center justify-between p-2 rounded hover:bg-gray-200 cursor-pointer"
       >
-        <div
-          class="flex items-center gap-2"
+        <span
+          data-testid="folder-name-2"
         >
-          <span>
-            📁
-          </span>
-          <span>
-            server
-          </span>
-        </div>
+          📁 server
+        </span>
         <div
           class="relative"
         >
@@ -65,18 +55,13 @@ exports[`FileTreeView Component matches the snapshot 1`] = `
       class="relative mb-2"
     >
       <div
-        class="flex items-center justify-between p-2 rounded hover:bg-gray-200 transition duration-200 cursor-pointer"
+        class="flex items-center justify-between p-2 rounded hover:bg-gray-200 cursor-pointer"
       >
-        <div
-          class="flex items-center gap-2"
+        <span
+          data-testid="folder-name-3"
         >
-          <span>
-            📁
-          </span>
-          <span>
-            src
-          </span>
-        </div>
+          📁 src
+        </span>
         <div
           class="relative"
         >

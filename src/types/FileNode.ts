@@ -5,4 +5,5 @@ export interface FileNode {
   name: string;
   type: FILE_TYPE;
   children?: FileNode[];
+  fileContent?: string;
 }
