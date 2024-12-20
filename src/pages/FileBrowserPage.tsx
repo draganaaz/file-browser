@@ -53,8 +53,21 @@ const FileBrowserPage: React.FC = () => {
   };
 
   const handleBreadcrumbClick = (index: number) => {
-    setCurrentPath((prevPath) => prevPath.slice(0, index + 1));
-    setSelectedNode(null);
+    const newPath: string[] = ['My Files'];
+    let currentNode: FileNode | null = null;
+    let currentTree = fileTree;
+
+    // Iterate through the breadcrumb segments up to the clicked index
+    for (let i = 1; i <= index; i++) {
+      const segment = currentPath[i];
+      newPath.push(segment);
+
+      currentNode = currentTree.find((node) => node.name === segment) || null;
+      currentTree = currentNode?.children || [];
+    }
+
+    setCurrentPath(newPath);
+    setSelectedNode(currentNode);
   };
 
   return (
