@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import ReactQuill from 'react-quill';
 import { FileNode } from '../../types/FileNode';
-import { FILE_TYPE } from '../../constants/enums';
+import { FILE_TYPE } from '../../constants/fileTree';
 import 'react-quill/dist/quill.snow.css';
 
 interface FileViewerProps {
@@ -16,6 +16,7 @@ const FileViewer: React.FC<FileViewerProps> = ({
   const [content, setContent] = useState<string>('');
   const [isEdited, setIsEdited] = useState(false);
 
+  // Load content when selectedNode changes
   useEffect(() => {
     if (selectedNode?.type === FILE_TYPE.FILE && selectedNode.fileContent) {
       setContent(selectedNode.fileContent);
@@ -23,11 +24,13 @@ const FileViewer: React.FC<FileViewerProps> = ({
     }
   }, [selectedNode]);
 
+  // Debounced content change handler
   const handleContentChange = useCallback((value: string) => {
     setContent(value);
     setIsEdited(true);
   }, []);
 
+  // Warn user about unsaved changes
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (isEdited) {
@@ -48,7 +51,7 @@ const FileViewer: React.FC<FileViewerProps> = ({
   };
 
   const handleDiscard = () => {
-    if (selectedNode?.type === 'file') {
+    if (selectedNode?.type === FILE_TYPE.FILE) {
       setContent(selectedNode.fileContent || '');
       setIsEdited(false);
     }

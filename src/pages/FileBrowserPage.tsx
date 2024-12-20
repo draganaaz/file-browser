@@ -1,57 +1,19 @@
 import React, { useCallback, useState } from 'react';
 import FileTreeView from '../components/FileTreeView/FileTreeView';
 import { FileNode } from '../types/FileNode';
-import { FILE_TYPE } from '../constants/enums';
+import { FILE_TYPE } from '../constants/fileTree';
 import Header from '../components/Header/Header';
 import { debounce } from '../utils/debounce';
 import {
   filterTree,
   handleAddNode,
   handleDeleteNode,
+  handleRenameNode,
+  updateFileContent,
 } from '../utils/treeService';
 import FileViewer from '../components/FileViewer/FileViewer';
 import Breadcrumbs from '../components/Breadcrumbs/Breadcrumbs';
-
-const initialData: FileNode[] = [
-  {
-    id: '1',
-    name: 'public',
-    type: FILE_TYPE.FOLDER,
-    children: [
-      {
-        id: '1-1',
-        name: 'exus-logo.png',
-        type: FILE_TYPE.FILE,
-        fileContent: '/exus.png',
-      },
-    ],
-  },
-  {
-    id: '2',
-    name: 'server',
-    type: FILE_TYPE.FOLDER,
-    children: [
-      {
-        id: '2-1',
-        name: 'config.json',
-        type: FILE_TYPE.FILE,
-        fileContent: '{"key": "value"}',
-      },
-      {
-        id: '2-2',
-        name: 'notes.txt',
-        type: FILE_TYPE.FILE,
-        fileContent: 'This is a sample text file.',
-      },
-    ],
-  },
-  {
-    id: '3',
-    name: 'src',
-    type: FILE_TYPE.FOLDER,
-    children: [],
-  },
-];
+import { initialData } from '../constants/mocks';
 
 const FileBrowserPage: React.FC = () => {
   const [fileTree, setFileTree] = useState<FileNode[]>(initialData);
@@ -82,19 +44,12 @@ const FileBrowserPage: React.FC = () => {
     setCurrentPath(path);
   };
 
-  const handleUpdateContent = (id: string, updatedContent: string) => {
-    const updateFileContent = (nodes: FileNode[]): FileNode[] =>
-      nodes.map((node) => {
-        if (node.id === id) {
-          return { ...node, fileContent: updatedContent };
-        }
-        if (node.children) {
-          return { ...node, children: updateFileContent(node.children) };
-        }
-        return node;
-      });
+  const handleRename = (nodeId: string, newName: string) => {
+    setFileTree((prevTree) => handleRenameNode(prevTree, nodeId, newName));
+  };
 
-    setFileTree((prevTree) => updateFileContent(prevTree));
+  const handleUpdateContent = (id: string, updatedContent: string) => {
+    setFileTree((prevTree) => updateFileContent(prevTree, id, updatedContent));
   };
 
   const handleBreadcrumbClick = (index: number) => {
@@ -113,6 +68,8 @@ const FileBrowserPage: React.FC = () => {
             onAdd={handleAdd}
             onDelete={handleDelete}
             onSelect={handleSelect}
+            onRename={handleRename}
+            selectedNode={selectedNode}
           />
         </div>
         <div className="flex-1 p-4">

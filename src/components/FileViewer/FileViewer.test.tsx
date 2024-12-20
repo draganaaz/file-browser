@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import FileViewer from './FileViewer';
 import { FileNode } from '../../types/FileNode';
-import { FILE_TYPE } from '../../constants/enums';
+import { FILE_TYPE } from '../../constants/fileTree';
 
 describe('FileViewer Component', () => {
   const mockOnUpdateContent = jest.fn();

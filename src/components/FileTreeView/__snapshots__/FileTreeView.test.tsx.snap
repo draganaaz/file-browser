@@ -21,12 +21,39 @@ exports[`FileTreeView Component matches the snapshot 1`] = `
         >
           <button
             class="text-gray-600 hover:text-gray-800 px-2 py-0.5"
-            data-testid="menu-button"
+            data-testid="menu-button-1"
           >
             ⋮
           </button>
         </div>
       </div>
+      <ul
+        class="ml-4"
+      >
+        <li
+          class="relative mb-2"
+        >
+          <div
+            class="flex items-center justify-between p-2 rounded hover:bg-gray-200 cursor-pointer"
+          >
+            <span
+              data-testid="folder-name-1-1"
+            >
+              📄 exus-logo.png
+            </span>
+            <div
+              class="relative"
+            >
+              <button
+                class="text-gray-600 hover:text-gray-800 px-2 py-0.5"
+                data-testid="menu-button-1-1"
+              >
+                ⋮
+              </button>
+            </div>
+          </div>
+        </li>
+      </ul>
     </li>
     <li
       class="relative mb-2"
@@ -44,12 +71,62 @@ exports[`FileTreeView Component matches the snapshot 1`] = `
         >
           <button
             class="text-gray-600 hover:text-gray-800 px-2 py-0.5"
-            data-testid="menu-button"
+            data-testid="menu-button-2"
           >
             ⋮
           </button>
         </div>
       </div>
+      <ul
+        class="ml-4"
+      >
+        <li
+          class="relative mb-2"
+        >
+          <div
+            class="flex items-center justify-between p-2 rounded hover:bg-gray-200 cursor-pointer"
+          >
+            <span
+              data-testid="folder-name-2-1"
+            >
+              📄 config.json
+            </span>
+            <div
+              class="relative"
+            >
+              <button
+                class="text-gray-600 hover:text-gray-800 px-2 py-0.5"
+                data-testid="menu-button-2-1"
+              >
+                ⋮
+              </button>
+            </div>
+          </div>
+        </li>
+        <li
+          class="relative mb-2"
+        >
+          <div
+            class="flex items-center justify-between p-2 rounded hover:bg-gray-200 cursor-pointer"
+          >
+            <span
+              data-testid="folder-name-2-2"
+            >
+              📄 notes.txt
+            </span>
+            <div
+              class="relative"
+            >
+              <button
+                class="text-gray-600 hover:text-gray-800 px-2 py-0.5"
+                data-testid="menu-button-2-2"
+              >
+                ⋮
+              </button>
+            </div>
+          </div>
+        </li>
+      </ul>
     </li>
     <li
       class="relative mb-2"
@@ -67,12 +144,15 @@ exports[`FileTreeView Component matches the snapshot 1`] = `
         >
           <button
             class="text-gray-600 hover:text-gray-800 px-2 py-0.5"
-            data-testid="menu-button"
+            data-testid="menu-button-3"
           >
             ⋮
           </button>
         </div>
       </div>
+      <ul
+        class="ml-4"
+      />
     </li>
   </ul>
 </DocumentFragment>

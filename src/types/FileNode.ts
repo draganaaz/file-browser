@@ -1,4 +1,4 @@
-import { FILE_TYPE } from '../constants/enums';
+import { FILE_TYPE } from '../constants/fileTree';
 
 export interface FileNode {
   id: string;
@@ -6,4 +6,5 @@ export interface FileNode {
   type: FILE_TYPE;
   children?: FileNode[];
   fileContent?: string;
+  createdAt?: Date;
 }

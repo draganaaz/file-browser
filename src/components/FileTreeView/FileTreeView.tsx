@@ -1,44 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import { FILE_TYPE } from '../../constants/enums';
+import React, { useState, useRef, useCallback } from 'react';
+import {
+  FILE_TYPE,
+  MENU_ITEMS,
+  VALID_EXTENSIONS,
+} from '../../constants/fileTree';
 import { FileNode } from '../../types/FileNode';
+import { isValidFileName } from '../../utils/validations';
+import Modal from '../Modal/Modal';
+import { useOutsideClick } from '../../hooks/useOutsideClick';
 
 interface FileTreeViewProps {
   data: FileNode[];
   onAdd: (parentId: string, name: string, type: FILE_TYPE) => void;
   onDelete: (nodeId: string) => void;
   onSelect: (node: FileNode, path: string[]) => void;
+  onRename: (nodeId: string, newName: string) => void;
+  selectedNode: FileNode | null;
 }
-
-const VALID_EXTENSIONS = {
-  TEXT: 'txt',
-  JSON: 'json',
-  IMAGE: 'png',
-};
-
-const MENU_ITEMS = [
-  { label: 'New Folder', type: FILE_TYPE.FOLDER },
-  {
-    label: 'New Text Document',
-    type: FILE_TYPE.FILE,
-    extension: VALID_EXTENSIONS.TEXT,
-  },
-  {
-    label: 'New JSON Document',
-    type: FILE_TYPE.FILE,
-    extension: VALID_EXTENSIONS.JSON,
-  },
-  {
-    label: 'New Image',
-    type: FILE_TYPE.FILE,
-    extension: VALID_EXTENSIONS.IMAGE,
-  },
-];
 
 const FileTreeView: React.FC<FileTreeViewProps> = ({
   data,
   onAdd,
   onDelete,
+  onRename,
   onSelect,
+  selectedNode,
 }) => {
   const [menuNodeId, setMenuNodeId] = useState<string | null>(null);
   const [addMenuOpenId, setAddMenuOpenId] = useState<string | null>(null);
@@ -47,40 +33,51 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({
   const [errorMessage, setErrorMessage] = useState('');
   const [fileExtension, setFileExtension] = useState<string | null>(null);
   const [itemType, setItemType] = useState<FILE_TYPE | null>(null);
+  const [isRenaming, setIsRenaming] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
 
-  const closeMenus = () => {
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  const closeMenus = useCallback(() => {
     setMenuNodeId(null);
     setAddMenuOpenId(null);
     setErrorMessage('');
-  };
-
-  useEffect(() => {
-    const handleOutsideClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (!target.closest('.menu-container')) {
-        closeMenus();
-      }
-    };
-
-    document.addEventListener('click', handleOutsideClick);
-    return () => document.removeEventListener('click', handleOutsideClick);
+    setIsRenaming(false);
+    setShowDetails(false);
   }, []);
+
+  useOutsideClick(menuRef, () => closeMenus());
 
   const handleAdd = (parentId: string, type: FILE_TYPE, extension?: string) => {
     setActiveParentId(parentId);
     setItemType(type);
-    setFileExtension(extension || null);
+    extension && setFileExtension(extension);
     closeMenus();
   };
 
   const handleConfirmAdd = (parentId: string) => {
-    let name =
-      newItemName.trim() ||
-      (itemType === FILE_TYPE.FOLDER
-        ? 'New Folder'
-        : `New File.${fileExtension}`);
-    if (itemType === FILE_TYPE.FILE && !name.includes('.') && fileExtension) {
-      name += `.${fileExtension}`;
+    let name = newItemName.trim();
+
+    if (itemType === FILE_TYPE.FILE) {
+      const nameParts = name.split('.');
+      const nameExtension =
+        nameParts.length > 1 ? nameParts.pop() : fileExtension;
+
+      if (
+        nameExtension &&
+        !Object.values(VALID_EXTENSIONS).includes(nameExtension)
+      ) {
+        setErrorMessage(
+          'Invalid file extension. Please use a valid extension.'
+        );
+        return;
+      }
+      name = nameParts.join('.') + '.' + nameExtension;
+    }
+
+    if (!isValidFileName(name)) {
+      setErrorMessage('Invalid name. Please avoid special characters.');
+      return;
     }
 
     const parentFolder = data.find((node) => node.id === parentId);
@@ -97,8 +94,59 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({
     setErrorMessage('');
   };
 
+  const handleRename = (nodeId: string, newName: string) => {
+    const node = data.find((node) => node.id === nodeId);
+    if (!node) {
+      setErrorMessage('File/Folder not found.');
+      return;
+    }
+
+    if (!isValidFileName(newName)) {
+      setErrorMessage('Invalid name. Please avoid special characters.');
+      return;
+    }
+
+    if (node.type === FILE_TYPE.FILE) {
+      const nameParts = newName.split('.');
+      const originalExtension = node.name.split('.').pop();
+      const newExtension =
+        nameParts.length > 1 ? nameParts.pop() : originalExtension;
+
+      if (
+        newExtension &&
+        !Object.values(VALID_EXTENSIONS).includes(newExtension)
+      ) {
+        setErrorMessage(
+          `Invalid file extension. You must keep the ".${originalExtension}" extension or use a valid extension.`
+        );
+        return;
+      }
+      newName = nameParts.join('.') + '.' + newExtension;
+    }
+
+    onRename(nodeId, newName);
+    setIsRenaming(false);
+    setErrorMessage('');
+  };
+
+  const handleModalClose = () => {
+    setShowDetails(false);
+    setMenuNodeId(null);
+  };
+
+  const handleDetailsClick = (nodeId: string) => {
+    const node = data.find((node) => node.id === nodeId);
+    if (node) {
+      setShowDetails(true);
+      setMenuNodeId(null);
+    }
+  };
+
   const renderMenuItems = (nodeId: string) => (
-    <div className="absolute right-[-160px] top-0 bg-white border rounded shadow-md p-1 w-40 z-30 menu-container">
+    <div
+      className="absolute right-[-160px] top-0 bg-white border rounded shadow-md p-1 w-40 z-30 menu-container"
+      ref={menuRef}
+    >
       {MENU_ITEMS.map((item) => (
         <button
           key={item.label}
@@ -127,6 +175,15 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({
       )}
       <button
         onClick={() => {
+          setIsRenaming(true);
+        }}
+        className="w-full px-2 py-1 hover:bg-gray-200 text-left"
+        data-testid="rename-button"
+      >
+        Rename
+      </button>
+      <button
+        onClick={() => {
           onDelete(nodeId);
           closeMenus();
         }}
@@ -134,6 +191,13 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({
         data-testid="delete-button"
       >
         Delete
+      </button>
+      <button
+        onClick={() => handleDetailsClick(nodeId)}
+        className="w-full px-2 py-1 hover:bg-gray-200 text-left"
+        data-testid="details-button"
+      >
+        Details
       </button>
       {addMenuOpenId === nodeId && renderMenuItems(nodeId)}
     </div>
@@ -149,9 +213,23 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({
             className="flex items-center justify-between p-2 rounded hover:bg-gray-200 cursor-pointer"
             onClick={() => onSelect(node, newPath)}
           >
-            <span data-testid={`folder-name-${node.id}`}>
-              {node.type === FILE_TYPE.FOLDER ? '📁' : '📄'} {node.name}
-            </span>
+            {isRenaming && selectedNode?.id === node.id ? (
+              <input
+                type="text"
+                defaultValue={node.name}
+                onBlur={(e) => handleRename(node.id, e.target.value)}
+                onKeyDown={(e) =>
+                  e.key === 'Enter' &&
+                  handleRename(node.id, e.currentTarget.value)
+                }
+                autoFocus
+                className="border rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            ) : (
+              <span data-testid={`folder-name-${node.id}`}>
+                {node.type === FILE_TYPE.FOLDER ? '📁' : '📄'} {node.name}
+              </span>
+            )}
             <div className="relative">
               <button
                 onClick={(e) => {
@@ -159,7 +237,7 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({
                   setMenuNodeId(menuNodeId === node.id ? null : node.id);
                 }}
                 className="text-gray-600 hover:text-gray-800 px-2 py-0.5"
-                data-testid="menu-button"
+                data-testid={`menu-button-${node.id}`}
               >
                 ⋮
               </button>
@@ -186,6 +264,7 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({
               )}
             </div>
           )}
+
           {node.children && (
             <ul className="ml-4">{renderTree(node.children, newPath)}</ul>
           )}
@@ -194,9 +273,22 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({
     });
 
   return (
-    <ul className="p-2">
-      {data.length > 0 ? renderTree(data) : <p>No files available</p>}
-    </ul>
+    <>
+      <ul className="p-2">
+        {data.length > 0 ? renderTree(data) : <p>No files available</p>}
+      </ul>
+      {showDetails && selectedNode && (
+        <Modal
+          show={true}
+          onClose={handleModalClose}
+          title={`Details for ${selectedNode.name}`}
+        >
+          <div className="text-sm text-gray-600">
+            <p>Created At: {selectedNode.createdAt?.toLocaleString()}</p>
+          </div>
+        </Modal>
+      )}
+    </>
   );
 };
 

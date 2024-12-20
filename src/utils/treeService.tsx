@@ -1,5 +1,5 @@
 import { FileNode } from '../types/FileNode';
-import { FILE_TYPE } from '../constants/enums';
+import { FILE_TYPE } from '../constants/fileTree';
 
 /**
  * Recursively filters the file tree based on a search query.
@@ -91,3 +91,56 @@ export const handleDeleteNode = (
 
   return deleteNode(tree);
 };
+
+/**
+ * Renames a node in the tree based on its ID.
+ *
+ * @param nodes - The current file tree structure.
+ * @param nodeId - The ID of the node to be renamed.
+ * @param newName - The new name for the node.
+ * @returns The updated file tree with the specified node renamed.
+ */
+export const handleRenameNode = (
+  nodes: FileNode[],
+  nodeId: string,
+  newName: string
+): FileNode[] => {
+  return nodes.map((node) => {
+    if (node.id === nodeId) {
+      return { ...node, name: newName };
+    }
+    if (node.children) {
+      return {
+        ...node,
+        children: handleRenameNode(node.children, nodeId, newName),
+      };
+    }
+    return node;
+  });
+};
+
+/**
+ * Updates the content of a specific file node in the tree.
+ *
+ * @param nodes - The current file tree structure.
+ * @param id - The ID of the file to be updated.
+ * @param updatedContent - The new content to be assigned to the file.
+ * @returns The updated file tree with the specified file content modified.
+ */
+export const updateFileContent = (
+  nodes: FileNode[],
+  id: string,
+  updatedContent: string
+): FileNode[] =>
+  nodes.map((node) => {
+    if (node.id === id) {
+      return { ...node, fileContent: updatedContent };
+    }
+    if (node.children) {
+      return {
+        ...node,
+        children: updateFileContent(node.children, node.id, updatedContent),
+      };
+    }
+    return node;
+  });
