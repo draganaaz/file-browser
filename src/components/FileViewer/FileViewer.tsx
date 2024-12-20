@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import ReactQuill from 'react-quill';
 import { FileNode } from '../../types/FileNode';
+import { FILE_TYPE } from '../../constants/enums';
+import 'react-quill/dist/quill.snow.css';
 
 interface FileViewerProps {
   selectedNode: FileNode | null;
-  onUpdateContent: (id: string, content: string) => void; // Dodaj ID u funkciju
+  onUpdateContent: (id: string, content: string) => void;
 }
 
 const FileViewer: React.FC<FileViewerProps> = ({
@@ -12,22 +14,48 @@ const FileViewer: React.FC<FileViewerProps> = ({
   onUpdateContent,
 }) => {
   const [content, setContent] = useState<string>('');
+  const [isEdited, setIsEdited] = useState(false);
 
   useEffect(() => {
-    if (selectedNode?.type === 'file' && selectedNode.fileContent) {
+    if (selectedNode?.type === FILE_TYPE.FILE && selectedNode.fileContent) {
       setContent(selectedNode.fileContent);
+      setIsEdited(false);
     }
   }, [selectedNode]);
 
-  const handleContentChange = (value: string) => {
+  const handleContentChange = useCallback((value: string) => {
     setContent(value);
+    setIsEdited(true);
+  }, []);
+
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isEdited) {
+        e.preventDefault();
+        e.returnValue = 'Changes you made will be lost. Save?';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isEdited]);
+
+  const handleSave = () => {
     if (selectedNode) {
-      onUpdateContent(selectedNode.id, value);
+      onUpdateContent(selectedNode.id, content);
+      setIsEdited(false);
+    }
+  };
+
+  const handleDiscard = () => {
+    if (selectedNode?.type === 'file') {
+      setContent(selectedNode.fileContent || '');
+      setIsEdited(false);
     }
   };
 
   const renderFolderContent = (node: FileNode) => (
-    <div className="p-4 border-l">
+    <>
       <h2 className="text-lg font-bold mb-2" data-testid="file-name">
         {node.name}
       </h2>
@@ -35,18 +63,18 @@ const FileViewer: React.FC<FileViewerProps> = ({
         <ul className="list-disc ml-6">
           {node.children.map((child) => (
             <li key={child.id} className="mb-1" data-testid="folder-item">
-              {child.type === 'folder' ? '📁' : '📄'} {child.name}
+              {child.type === FILE_TYPE.FOLDER ? '📁' : '📄'} {child.name}
             </li>
           ))}
         </ul>
       ) : (
         <p className="text-gray-500">Folder is empty.</p>
       )}
-    </div>
+    </>
   );
 
   const renderFileContent = (node: FileNode) => (
-    <div className="p-4 border-l">
+    <>
       <h2 className="text-lg font-bold mb-4" data-testid="file-name">
         {node.name}
       </h2>
@@ -58,13 +86,30 @@ const FileViewer: React.FC<FileViewerProps> = ({
           data-testid="image-file"
         />
       ) : (
-        <ReactQuill
-          value={content}
-          onChange={handleContentChange}
-          className="h-64 mb-4"
-        />
+        <>
+          <ReactQuill
+            value={content}
+            onChange={handleContentChange}
+            className="mb-6"
+            theme="snow"
+          />
+          <div className="flex justify-end gap-2 mt-4">
+            <button
+              onClick={handleSave}
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+              Save
+            </button>
+            <button
+              onClick={handleDiscard}
+              className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+            >
+              Discard
+            </button>
+          </div>
+        </>
       )}
-    </div>
+    </>
   );
 
   const renderContent = () => {
@@ -75,13 +120,13 @@ const FileViewer: React.FC<FileViewerProps> = ({
         </p>
       );
     }
-    return selectedNode.type === 'folder'
+    return selectedNode.type === FILE_TYPE.FOLDER
       ? renderFolderContent(selectedNode)
       : renderFileContent(selectedNode);
   };
 
   return (
-    <div className="p-4 border-l">
+    <div className="p-4">
       <h2 className="text-lg font-semibold mb-2">File Viewer</h2>
       {renderContent()}
     </div>
