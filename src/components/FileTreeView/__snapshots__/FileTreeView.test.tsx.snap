@@ -16,16 +16,6 @@ exports[`FileTreeView Component matches the snapshot 1`] = `
         >
           📁 public
         </span>
-        <div
-          class="relative"
-        >
-          <button
-            class="text-gray-600 hover:text-gray-800 px-2 py-0.5"
-            data-testid="menu-button-1"
-          >
-            ⋮
-          </button>
-        </div>
       </div>
       <ul
         class="ml-4"
@@ -41,16 +31,6 @@ exports[`FileTreeView Component matches the snapshot 1`] = `
             >
               📄 exus-logo.png
             </span>
-            <div
-              class="relative"
-            >
-              <button
-                class="text-gray-600 hover:text-gray-800 px-2 py-0.5"
-                data-testid="menu-button-1-1"
-              >
-                ⋮
-              </button>
-            </div>
           </div>
         </li>
       </ul>
@@ -66,16 +46,6 @@ exports[`FileTreeView Component matches the snapshot 1`] = `
         >
           📁 server
         </span>
-        <div
-          class="relative"
-        >
-          <button
-            class="text-gray-600 hover:text-gray-800 px-2 py-0.5"
-            data-testid="menu-button-2"
-          >
-            ⋮
-          </button>
-        </div>
       </div>
       <ul
         class="ml-4"
@@ -91,16 +61,6 @@ exports[`FileTreeView Component matches the snapshot 1`] = `
             >
               📄 config.json
             </span>
-            <div
-              class="relative"
-            >
-              <button
-                class="text-gray-600 hover:text-gray-800 px-2 py-0.5"
-                data-testid="menu-button-2-1"
-              >
-                ⋮
-              </button>
-            </div>
           </div>
         </li>
         <li
@@ -114,16 +74,6 @@ exports[`FileTreeView Component matches the snapshot 1`] = `
             >
               📄 notes.txt
             </span>
-            <div
-              class="relative"
-            >
-              <button
-                class="text-gray-600 hover:text-gray-800 px-2 py-0.5"
-                data-testid="menu-button-2-2"
-              >
-                ⋮
-              </button>
-            </div>
           </div>
         </li>
       </ul>
@@ -139,16 +89,6 @@ exports[`FileTreeView Component matches the snapshot 1`] = `
         >
           📁 src
         </span>
-        <div
-          class="relative"
-        >
-          <button
-            class="text-gray-600 hover:text-gray-800 px-2 py-0.5"
-            data-testid="menu-button-3"
-          >
-            ⋮
-          </button>
-        </div>
       </div>
       <ul
         class="ml-4"

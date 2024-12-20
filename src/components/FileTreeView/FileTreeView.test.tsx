@@ -31,7 +31,7 @@ describe('FileTreeView Component', () => {
     expect(screen.getByTestId('folder-name-3')).toHaveTextContent('src');
   });
 
-  it('opens the actions menu for a specific node on button click', () => {
+  it('displays action buttons (Add, Delete, Rename) on hover', () => {
     render(
       <FileTreeView
         data={initialData}
@@ -43,15 +43,15 @@ describe('FileTreeView Component', () => {
       />
     );
 
-    const menuButton = screen.getByTestId('menu-button-1');
-    fireEvent.click(menuButton);
+    const folderItem = screen.getByTestId('folder-name-1');
+    fireEvent.mouseEnter(folderItem);
 
     expect(screen.getByTestId('add-button')).toBeInTheDocument();
     expect(screen.getByTestId('delete-button')).toBeInTheDocument();
     expect(screen.getByTestId('rename-button')).toBeInTheDocument();
   });
 
-  it('calls onDelete for the specific node when delete button is clicked', () => {
+  it('opens the add submenu when Add is clicked', () => {
     render(
       <FileTreeView
         data={initialData}
@@ -63,29 +63,8 @@ describe('FileTreeView Component', () => {
       />
     );
 
-    const menuButton = screen.getByTestId('menu-button-1');
-    fireEvent.click(menuButton);
-
-    const deleteButton = screen.getByTestId('delete-button');
-    fireEvent.click(deleteButton);
-
-    expect(mockOnDelete).toHaveBeenCalledWith('1');
-  });
-
-  it('opens submenu for adding a new item for a specific node', () => {
-    render(
-      <FileTreeView
-        data={initialData}
-        onAdd={mockOnAdd}
-        onDelete={mockOnDelete}
-        onSelect={mockOnSelect}
-        onRename={mockOnRename}
-        selectedNode={null}
-      />
-    );
-
-    const menuButton = screen.getByTestId('menu-button-1');
-    fireEvent.click(menuButton);
+    const folderItem = screen.getByTestId('folder-name-1');
+    fireEvent.mouseEnter(folderItem);
 
     const addButton = screen.getByTestId('add-button');
     fireEvent.click(addButton);
@@ -96,7 +75,7 @@ describe('FileTreeView Component', () => {
     expect(screen.getByText('New Image')).toBeInTheDocument();
   });
 
-  it('calls onAdd when adding a new folder', () => {
+  it('calls onAdd when a new folder is added', () => {
     render(
       <FileTreeView
         data={initialData}
@@ -108,14 +87,14 @@ describe('FileTreeView Component', () => {
       />
     );
 
-    const menuButton = screen.getByTestId('menu-button-1');
-    fireEvent.click(menuButton);
+    const folderItem = screen.getByTestId('folder-name-1');
+    fireEvent.mouseEnter(folderItem);
 
     const addButton = screen.getByTestId('add-button');
     fireEvent.click(addButton);
 
-    const newFolderButton = screen.getByText('New Folder');
-    fireEvent.click(newFolderButton);
+    const folderOption = screen.getByText('New Folder');
+    fireEvent.click(folderOption);
 
     const inputField = screen.getByPlaceholderText('Enter folder name');
     fireEvent.change(inputField, { target: { value: 'newFolder' } });
@@ -124,7 +103,28 @@ describe('FileTreeView Component', () => {
     expect(mockOnAdd).toHaveBeenCalledWith('1', 'newFolder', FILE_TYPE.FOLDER);
   });
 
-  it('calls onRename for a specific node when renaming a folder', () => {
+  it('calls onDelete when Delete is clicked', () => {
+    render(
+      <FileTreeView
+        data={initialData}
+        onAdd={mockOnAdd}
+        onDelete={mockOnDelete}
+        onSelect={mockOnSelect}
+        onRename={mockOnRename}
+        selectedNode={null}
+      />
+    );
+
+    const folderItem = screen.getByTestId('folder-name-1');
+    fireEvent.mouseEnter(folderItem);
+
+    const deleteButton = screen.getByTestId('delete-button');
+    fireEvent.click(deleteButton);
+
+    expect(mockOnDelete).toHaveBeenCalledWith('1');
+  });
+
+  it('calls onRename when renaming a folder', () => {
     render(
       <FileTreeView
         data={initialData}
@@ -136,8 +136,8 @@ describe('FileTreeView Component', () => {
       />
     );
 
-    const menuButton = screen.getByTestId('menu-button-1');
-    fireEvent.click(menuButton);
+    const folderItem = screen.getByTestId('folder-name-1');
+    fireEvent.mouseEnter(folderItem);
 
     const renameButton = screen.getByTestId('rename-button');
     fireEvent.click(renameButton);
@@ -147,27 +147,6 @@ describe('FileTreeView Component', () => {
     fireEvent.keyDown(inputField, { key: 'Enter', code: 'Enter' });
 
     expect(mockOnRename).toHaveBeenCalledWith('1', 'newPublic');
-  });
-
-  it('opens details modal when Details button is clicked', () => {
-    render(
-      <FileTreeView
-        data={initialData}
-        onAdd={mockOnAdd}
-        onDelete={mockOnDelete}
-        onSelect={mockOnSelect}
-        onRename={mockOnRename}
-        selectedNode={initialData[0]}
-      />
-    );
-
-    const menuButton = screen.getByTestId('menu-button-1');
-    fireEvent.click(menuButton);
-
-    const detailsButton = screen.getByTestId('details-button');
-    fireEvent.click(detailsButton);
-
-    expect(screen.getByTestId('modal')).toBeInTheDocument();
   });
 
   it('matches the snapshot', () => {

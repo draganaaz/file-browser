@@ -6,7 +6,6 @@ import {
 } from '../../constants/fileTree';
 import { FileNode } from '../../types/FileNode';
 import { isValidFileName } from '../../utils/validations';
-import Modal from '../Modal/Modal';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { findNodeById } from '../../utils/treeService';
 
@@ -27,24 +26,21 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({
   onSelect,
   selectedNode,
 }) => {
-  const [menuNodeId, setMenuNodeId] = useState<string | null>(null);
-  const [submenuNodeId, setSubmenuNodeId] = useState<string | null>(null);
+  const [menuNode, setMenuNode] = useState<string | null>(null);
   const [activeParentId, setActiveParentId] = useState<string | null>(null);
   const [newItemName, setNewItemName] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [fileExtension, setFileExtension] = useState<string | null>(null);
   const [itemType, setItemType] = useState<FILE_TYPE | null>(null);
   const [isRenaming, setIsRenaming] = useState(false);
-  const [showDetails, setShowDetails] = useState(false);
+  const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
 
   const menuRef = useRef<HTMLDivElement>(null);
 
   const closeMenus = useCallback(() => {
-    setMenuNodeId(null);
-    setSubmenuNodeId(null);
+    setMenuNode(null);
     setErrorMessage('');
     setIsRenaming(false);
-    setShowDetails(false);
   }, []);
 
   useOutsideClick(menuRef, () => closeMenus());
@@ -151,19 +147,6 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({
     setErrorMessage('');
   };
 
-  const handleModalClose = () => {
-    setShowDetails(false);
-    setMenuNodeId(null);
-  };
-
-  const handleDetailsClick = (nodeId: string) => {
-    const node = data.find((node) => node.id === nodeId);
-    if (node) {
-      setShowDetails(true);
-      setMenuNodeId(null);
-    }
-  };
-
   const renderAddInputField = (node: FileNode) => (
     <div className="ml-6 mt-2">
       <input
@@ -222,56 +205,20 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({
     </div>
   );
 
-  const renderActionsMenu = (nodeId: string, isFolder: boolean) => (
-    <div className="absolute right-0 mt-1 bg-white border rounded shadow-md p-1 w-36 z-20 menu-container">
-      {isFolder && (
-        <button
-          onClick={() =>
-            setSubmenuNodeId(submenuNodeId === nodeId ? null : nodeId)
-          }
-          className="w-full px-2 py-1 hover:bg-gray-200 text-left"
-          data-testid="add-button"
-        >
-          Add New...
-        </button>
-      )}
-      <button
-        onClick={() => {
-          setIsRenaming(true);
-          setMenuNodeId(null);
-        }}
-        className="w-full px-2 py-1 hover:bg-gray-200 text-left"
-        data-testid="rename-button"
-      >
-        Rename
-      </button>
-      <button
-        onClick={() => {
-          onDelete(nodeId);
-          closeMenus();
-        }}
-        className="w-full px-2 py-1 hover:bg-gray-200 text-left text-red-500"
-        data-testid="delete-button"
-      >
-        Delete
-      </button>
-      <button
-        onClick={() => handleDetailsClick(nodeId)}
-        className="w-full px-2 py-1 hover:bg-gray-200 text-left"
-        data-testid="details-button"
-      >
-        Details
-      </button>
-      {submenuNodeId === nodeId && renderMenuItems(nodeId)}
-    </div>
-  );
-
   const renderTree = (nodes: FileNode[], path: string[] = ['My Files']) =>
     nodes.map((node) => {
+      const isHovered = hoveredNodeId === node.id;
+      const isFolder = node.type === FILE_TYPE.FOLDER;
       const newPath = [...path, node.name];
 
       return (
-        <li key={node.id} className="relative mb-2">
+        <li
+          key={node.id}
+          className="relative mb-2"
+          // TODO: Sometimes doens't work well when moving from one to another
+          onMouseEnter={() => setHoveredNodeId(node.id)}
+          onMouseLeave={() => setHoveredNodeId(null)}
+        >
           <div
             className="flex items-center justify-between p-2 rounded hover:bg-gray-200 cursor-pointer"
             onClick={() => onSelect(node, newPath)}
@@ -285,22 +232,45 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({
                 {node.type === FILE_TYPE.FOLDER ? '📁' : '📄'} {node.name}
               </span>
             )}
-            <div className="relative">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setMenuNodeId(menuNodeId === node.id ? null : node.id);
-                }}
-                className="text-gray-600 hover:text-gray-800 px-2 py-0.5"
-                data-testid={`menu-button-${node.id}`}
-              >
-                ⋮
-              </button>
-              {menuNodeId === node.id &&
-                renderActionsMenu(node.id, node.type === FILE_TYPE.FOLDER)}
-            </div>
+            {isHovered && (
+              <div className="flex items-center gap-2">
+                {isFolder && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setMenuNode(node.id);
+                    }}
+                    className="text-blue-500 hover:underline"
+                    data-testid="add-button"
+                  >
+                    Add
+                  </button>
+                )}
+                <button
+                  onClick={() => {
+                    setIsRenaming(true);
+                  }}
+                  className="text-blue-500 hover:underline"
+                  data-testid="rename-button"
+                >
+                  Rename
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(node.id);
+                    closeMenus();
+                  }}
+                  className="text-red-500 hover:underline"
+                  data-testid="delete-button"
+                >
+                  Delete
+                </button>
+              </div>
+            )}
           </div>
           {activeParentId === node.id && renderAddInputField(node)}
+          {menuNode === node.id && renderMenuItems(node.id)}
 
           {/* Render subtree */}
           {node.children && (
@@ -315,17 +285,6 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({
       <ul className="p-2">
         {data.length > 0 ? renderTree(data) : <p>No files available</p>}
       </ul>
-      {showDetails && selectedNode && (
-        <Modal
-          show={true}
-          onClose={handleModalClose}
-          title={`Details for ${selectedNode.name}`}
-        >
-          <div className="text-sm text-gray-600">
-            <p>Created At: {selectedNode.createdAt?.toLocaleString()}</p>
-          </div>
-        </Modal>
-      )}
     </>
   );
 };
