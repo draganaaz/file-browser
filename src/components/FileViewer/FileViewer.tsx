@@ -14,46 +14,28 @@ const FileViewer: React.FC<FileViewerProps> = ({
   onUpdateContent,
 }) => {
   const [content, setContent] = useState<string>('');
-  const [isEdited, setIsEdited] = useState(false);
 
   // Load content when selectedNode changes
   useEffect(() => {
     if (selectedNode?.type === FILE_TYPE.FILE && selectedNode.fileContent) {
       setContent(selectedNode.fileContent);
-      setIsEdited(false);
     }
   }, [selectedNode]);
 
   // Debounced content change handler
   const handleContentChange = useCallback((value: string) => {
     setContent(value);
-    setIsEdited(true);
   }, []);
-
-  // Warn user about unsaved changes
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (isEdited) {
-        e.preventDefault();
-        e.returnValue = 'Changes you made will be lost. Save?';
-      }
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [isEdited]);
 
   const handleSave = () => {
     if (selectedNode) {
       onUpdateContent(selectedNode.id, content);
-      setIsEdited(false);
     }
   };
 
   const handleDiscard = () => {
     if (selectedNode?.type === FILE_TYPE.FILE) {
       setContent(selectedNode.fileContent || '');
-      setIsEdited(false);
     }
   };
 

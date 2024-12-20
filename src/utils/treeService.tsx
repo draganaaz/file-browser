@@ -166,7 +166,7 @@ export const updateFileContent = (
     if (node.children) {
       return {
         ...node,
-        children: updateFileContent(node.children, node.id, updatedContent),
+        children: updateFileContent(node.children, id, updatedContent),
       };
     }
     return node;
