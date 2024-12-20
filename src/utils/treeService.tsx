@@ -29,6 +29,33 @@ export const filterTree = (nodes: FileNode[], query: string): FileNode[] => {
 };
 
 /**
+ * This function traverses the entire file tree, including nested folders,
+ * to locate the node with the specified ID. If the node is found, it is returned.
+ * If not, the function continues the search in the node's children.
+ *
+ * @param nodes - The array of `FileNode` objects representing the current file tree.
+ * @param nodeId - The unique ID of the node to find.
+ * @returns The `FileNode` object if found, or `undefined` if not found.
+ */
+export const findNodeById = (
+  nodes: FileNode[],
+  nodeId: string
+): FileNode | undefined => {
+  for (const node of nodes) {
+    if (node.id === nodeId) {
+      return node;
+    }
+    if (node.children) {
+      const found = findNodeById(node.children, nodeId);
+      if (found) {
+        return found;
+      }
+    }
+  }
+  return undefined;
+};
+
+/**
  * Adds a new node (file or folder) to the tree at the specified parent folder.
  *
  * @param tree - The current file tree structure.
