@@ -14,10 +14,9 @@ import { FileNode } from '../../types/FileNode';
 import { isValidFileName } from '../../utils/validations';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { findNodeById } from '../../utils/treeService';
+import { useFileTree } from '../../contexts/FileTreeContext';
 
 interface FileTreeViewProps {
-  data: FileNode[];
-  setData: Dispatch<SetStateAction<FileNode[]>>;
   onAdd: (parentId: string, name: string, type: FILE_TYPE) => void;
   onDelete: (nodeId: string) => void;
   onSelect: (node: FileNode, path: string[]) => void;
@@ -26,8 +25,6 @@ interface FileTreeViewProps {
 }
 
 const FileTreeView: React.FC<FileTreeViewProps> = ({
-  data,
-  setData,
   onAdd,
   onDelete,
   onRename,
@@ -44,6 +41,7 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({
   const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
 
   const menuRef = useRef<HTMLDivElement>(null);
+  const { fileTree, setFileTree } = useFileTree();
 
   const closeMenus = useCallback(() => {
     setMenuNode(null);
@@ -63,7 +61,7 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({
     });
 
   const handleToggle = (nodeId: string) => {
-    setData((prevData) => toggleNode(nodeId, prevData));
+    setFileTree((prevData) => toggleNode(nodeId, prevData));
   };
 
   useOutsideClick(menuRef, () => closeMenus());
@@ -108,7 +106,7 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({
       return;
     }
 
-    const parentFolder = data.find((node) => node.id === parentId);
+    const parentFolder = fileTree.find((node) => node.id === parentId);
     if (parentFolder?.children?.some((child) => child.name === name)) {
       setErrorMessage(
         'This item already exists at this location. Please choose a different name.'
@@ -126,7 +124,7 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({
     // Discard any ongoing addition before proceeding to renaming
     setActiveParentId(null);
 
-    const node = findNodeById(data, nodeId);
+    const node = findNodeById(fileTree, nodeId);
 
     if (!node) {
       setErrorMessage('File/Folder not found.');
@@ -308,7 +306,7 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({
   return (
     <>
       <ul className="p-2">
-        {data.length > 0 ? renderTree(data) : <p>No files available</p>}
+        {fileTree.length > 0 ? renderTree(fileTree) : <p>No files available</p>}
       </ul>
     </>
   );
