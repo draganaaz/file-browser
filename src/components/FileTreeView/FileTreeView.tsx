@@ -135,21 +135,33 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({ onSelect }) => {
             onMouseEnter={() => setHoveredNodeId(node.id)}
             onMouseLeave={() => setHoveredNodeId(null)}
             onClick={() => {
-              if (isFolder) {
-                handleToggle(node.id);
-              }
               onSelect(node, newPath);
             }}
           >
-            {/* Renaming node */}
-            {isRenaming && selectedNode?.id === node.id ? (
-              renderRenameInputField(node)
-            ) : (
-              // Displaying regular node
-              <span data-testid={`folder-name-${node.id}`}>
-                {isFolder ? (isExpanded ? '📂' : '📁') : '📄'} {node.name}
-              </span>
-            )}
+            <div className="flex items-center">
+              {isFolder && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleToggle(node.id);
+                  }}
+                  className="mr-1 text-gray-500 hover:text-gray-700 focus:outline-none"
+                  data-testid={`toggle-button-${node.id}`}
+                  aria-label={isExpanded ? 'Collapse folder' : 'Expand folder'}
+                >
+                  {isExpanded ? '⏷' : '⏵'}
+                </button>
+              )}
+              {/* Renaming node */}
+              {isRenaming && selectedNode?.id === node.id ? (
+                renderRenameInputField(node)
+              ) : (
+                // Displaying regular node
+                <span className="flex-1" data-testid={`folder-name-${node.id}`}>
+                  {isFolder ? (isExpanded ? '📂' : '📁') : '📄'} {node.name}
+                </span>
+              )}
+            </div>
             {isHovered && (
               <div className="flex items-center gap-2">
                 {isFolder && (
@@ -165,9 +177,7 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({ onSelect }) => {
                   </button>
                 )}
                 <button
-                  onClick={() => {
-                    setIsRenaming(true);
-                  }}
+                  onClick={() => setIsRenaming(true)}
                   className="text-blue-500 hover:underline"
                   data-testid="rename-button"
                 >

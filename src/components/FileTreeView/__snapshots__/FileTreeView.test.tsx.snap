@@ -11,11 +11,23 @@ exports[`FileTreeView Component matches the snapshot 1`] = `
       <div
         class="flex items-center justify-between p-2 rounded hover:bg-gray-200 cursor-pointer"
       >
-        <span
-          data-testid="folder-name-1"
+        <div
+          class="flex items-center"
         >
-          📁 public
-        </span>
+          <button
+            aria-label="Expand folder"
+            class="mr-1 text-gray-500 hover:text-gray-700 focus:outline-none"
+            data-testid="toggle-button-1"
+          >
+            ⏵
+          </button>
+          <span
+            class="flex-1"
+            data-testid="folder-name-1"
+          >
+            📁 public
+          </span>
+        </div>
       </div>
       <div
         class="absolute right-[-160px] top-0 bg-white border rounded shadow-md p-1 w-40 z-30 menu-container"
@@ -52,11 +64,23 @@ exports[`FileTreeView Component matches the snapshot 1`] = `
       <div
         class="flex items-center justify-between p-2 rounded hover:bg-gray-200 cursor-pointer"
       >
-        <span
-          data-testid="folder-name-2"
+        <div
+          class="flex items-center"
         >
-          📁 server
-        </span>
+          <button
+            aria-label="Expand folder"
+            class="mr-1 text-gray-500 hover:text-gray-700 focus:outline-none"
+            data-testid="toggle-button-2"
+          >
+            ⏵
+          </button>
+          <span
+            class="flex-1"
+            data-testid="folder-name-2"
+          >
+            📁 server
+          </span>
+        </div>
       </div>
     </li>
     <li
@@ -65,11 +89,23 @@ exports[`FileTreeView Component matches the snapshot 1`] = `
       <div
         class="flex items-center justify-between p-2 rounded hover:bg-gray-200 cursor-pointer"
       >
-        <span
-          data-testid="folder-name-3"
+        <div
+          class="flex items-center"
         >
-          📁 src
-        </span>
+          <button
+            aria-label="Expand folder"
+            class="mr-1 text-gray-500 hover:text-gray-700 focus:outline-none"
+            data-testid="toggle-button-3"
+          >
+            ⏵
+          </button>
+          <span
+            class="flex-1"
+            data-testid="folder-name-3"
+          >
+            📁 src
+          </span>
+        </div>
       </div>
     </li>
   </ul>
