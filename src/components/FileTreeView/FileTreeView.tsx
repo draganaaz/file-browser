@@ -1,9 +1,8 @@
-import React, { useState, useRef, SyntheticEvent } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { FILE_TYPE, MENU_ITEMS } from '../../constants/fileTree';
 import { FileNode } from '../../types/FileNode';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { useFileTree } from '../../contexts/FileTreeContext';
-import { handleDeleteNode } from '../../utils/treeService';
 
 interface FileTreeViewProps {
   onSelect: (node: FileNode, path: string[]) => void;
@@ -48,9 +47,9 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({ onSelect }) => {
       return node;
     });
 
-  const handleToggle = (nodeId: string) => {
+  const handleToggle = useCallback((nodeId: string) => {
     setFileTree((prevData) => toggleNode(nodeId, prevData));
-  };
+  }, []);
 
   // Initializes the addition process by setting state
   const startAdd = (parentId: string, type: FILE_TYPE, extension?: string) => {

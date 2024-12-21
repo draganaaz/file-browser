@@ -111,14 +111,20 @@ export const FileTreeProvider: React.FC<{
       return;
     }
 
-    setFileTree((prevTree) =>
-      handleAddNode(
+    setFileTree((prevTree) => {
+      // Add the new folder or file
+      const updatedTree = handleAddNode(
         prevTree,
         parentId,
         validation?.processedName || '',
         itemType as FILE_TYPE
-      )
-    );
+      );
+
+      // Expand the parent folder
+      return updatedTree.map((node) =>
+        node.id === parentId ? { ...node, isExpanded: true } : node
+      );
+    });
     resetState();
   };
 
