@@ -19,6 +19,7 @@ import {
 import { debounce } from '../utils/debounce';
 import { FILE_TYPE } from '../constants/fileTree';
 import { validateNameAndExtension } from '../utils/validations';
+import { ERROR_MESSAGES } from '../constants/errorMessages';
 
 export interface FileTreeContextProps {
   fileTree: FileNode[];
@@ -94,7 +95,9 @@ export const FileTreeProvider: React.FC<{
       fileExtension
     );
     if (!validation.valid) {
-      setErrorMessage(validation.error || 'Invalid name or extension.');
+      setErrorMessage(
+        validation.error || ERROR_MESSAGES.INVALID_NAME_OR_EXTENSION
+      );
       return;
     }
 
@@ -104,9 +107,7 @@ export const FileTreeProvider: React.FC<{
         (child) => child.name === validation.processedName
       )
     ) {
-      setErrorMessage(
-        'This item already exists at this location. Please choose a different name.'
-      );
+      setErrorMessage(ERROR_MESSAGES.ITEM_EXISTS);
       return;
     }
 
@@ -127,7 +128,7 @@ export const FileTreeProvider: React.FC<{
 
     const node = findNodeById(fileTree, nodeId);
     if (!node) {
-      setErrorMessage('File/Folder not found.');
+      setErrorMessage(ERROR_MESSAGES.FILE_NOT_FOUND);
       return;
     }
 
@@ -137,7 +138,9 @@ export const FileTreeProvider: React.FC<{
       node.name.split('.').pop() || ''
     );
     if (!validation.valid) {
-      setErrorMessage(validation.error || 'Invalid name or extension.');
+      setErrorMessage(
+        validation.error || ERROR_MESSAGES.INVALID_NAME_OR_EXTENSION
+      );
       return;
     }
 
