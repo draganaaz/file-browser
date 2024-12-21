@@ -78,6 +78,7 @@ const FileBrowserPage: React.FC = () => {
           <h2 className="text-lg font-bold mb-2">My Files</h2>
           <FileTreeView
             data={filteredTree}
+            setData={setFileTree}
             onAdd={handleAdd}
             onDelete={handleDelete}
             onSelect={handleSelect}

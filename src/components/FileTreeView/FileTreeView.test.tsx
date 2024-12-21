@@ -9,6 +9,7 @@ describe('FileTreeView Component', () => {
   const mockOnDelete = jest.fn();
   const mockOnSelect = jest.fn();
   const mockOnRename = jest.fn();
+  const mockSetData = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -18,6 +19,7 @@ describe('FileTreeView Component', () => {
     render(
       <FileTreeView
         data={initialData}
+        setData={mockSetData}
         onAdd={mockOnAdd}
         onDelete={mockOnDelete}
         onSelect={mockOnSelect}
@@ -35,6 +37,7 @@ describe('FileTreeView Component', () => {
     render(
       <FileTreeView
         data={initialData}
+        setData={mockSetData}
         onAdd={mockOnAdd}
         onDelete={mockOnDelete}
         onSelect={mockOnSelect}
@@ -51,10 +54,30 @@ describe('FileTreeView Component', () => {
     expect(screen.getByTestId('rename-button')).toBeInTheDocument();
   });
 
+  it('toggles folder expansion on click', () => {
+    render(
+      <FileTreeView
+        data={initialData}
+        setData={mockSetData}
+        onAdd={mockOnAdd}
+        onDelete={mockOnDelete}
+        onSelect={mockOnSelect}
+        onRename={mockOnRename}
+        selectedNode={null}
+      />
+    );
+
+    const folderItem = screen.getByTestId('folder-name-1');
+    fireEvent.click(folderItem);
+
+    expect(mockSetData).toHaveBeenCalledTimes(1);
+  });
+
   it('opens the add submenu when Add is clicked', () => {
     render(
       <FileTreeView
         data={initialData}
+        setData={mockSetData}
         onAdd={mockOnAdd}
         onDelete={mockOnDelete}
         onSelect={mockOnSelect}
@@ -79,6 +102,7 @@ describe('FileTreeView Component', () => {
     render(
       <FileTreeView
         data={initialData}
+        setData={mockSetData}
         onAdd={mockOnAdd}
         onDelete={mockOnDelete}
         onSelect={mockOnSelect}
@@ -107,6 +131,7 @@ describe('FileTreeView Component', () => {
     render(
       <FileTreeView
         data={initialData}
+        setData={mockSetData}
         onAdd={mockOnAdd}
         onDelete={mockOnDelete}
         onSelect={mockOnSelect}
@@ -128,6 +153,7 @@ describe('FileTreeView Component', () => {
     render(
       <FileTreeView
         data={initialData}
+        setData={mockSetData}
         onAdd={mockOnAdd}
         onDelete={mockOnDelete}
         onSelect={mockOnSelect}
@@ -153,6 +179,7 @@ describe('FileTreeView Component', () => {
     const { asFragment } = render(
       <FileTreeView
         data={initialData}
+        setData={mockSetData}
         onAdd={mockOnAdd}
         onDelete={mockOnDelete}
         onSelect={mockOnSelect}

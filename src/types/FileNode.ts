@@ -6,5 +6,5 @@ export interface FileNode {
   type: FILE_TYPE;
   children?: FileNode[];
   fileContent?: string;
-  createdAt?: Date;
+  isExpanded?: boolean;
 }

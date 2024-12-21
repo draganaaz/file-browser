@@ -1,4 +1,10 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, {
+  useState,
+  useRef,
+  useCallback,
+  Dispatch,
+  SetStateAction,
+} from 'react';
 import {
   FILE_TYPE,
   MENU_ITEMS,
@@ -11,6 +17,7 @@ import { findNodeById } from '../../utils/treeService';
 
 interface FileTreeViewProps {
   data: FileNode[];
+  setData: Dispatch<SetStateAction<FileNode[]>>;
   onAdd: (parentId: string, name: string, type: FILE_TYPE) => void;
   onDelete: (nodeId: string) => void;
   onSelect: (node: FileNode, path: string[]) => void;
@@ -20,6 +27,7 @@ interface FileTreeViewProps {
 
 const FileTreeView: React.FC<FileTreeViewProps> = ({
   data,
+  setData,
   onAdd,
   onDelete,
   onRename,
@@ -42,6 +50,21 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({
     setErrorMessage('');
     setIsRenaming(false);
   }, []);
+
+  const toggleNode = (nodeId: string, nodes: FileNode[]): FileNode[] =>
+    nodes.map((node) => {
+      if (node.id === nodeId) {
+        return { ...node, isExpanded: !node.isExpanded };
+      }
+      if (node.children) {
+        return { ...node, children: toggleNode(nodeId, node.children) };
+      }
+      return node;
+    });
+
+  const handleToggle = (nodeId: string) => {
+    setData((prevData) => toggleNode(nodeId, prevData));
+  };
 
   useOutsideClick(menuRef, () => closeMenus());
 
@@ -209,6 +232,7 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({
     nodes.map((node) => {
       const isHovered = hoveredNodeId === node.id;
       const isFolder = node.type === FILE_TYPE.FOLDER;
+      const isExpanded = node.isExpanded ?? false;
       const newPath = [...path, node.name];
 
       return (
@@ -221,7 +245,12 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({
         >
           <div
             className="flex items-center justify-between p-2 rounded hover:bg-gray-200 cursor-pointer"
-            onClick={() => onSelect(node, newPath)}
+            onClick={() => {
+              if (isFolder) {
+                handleToggle(node.id);
+              }
+              onSelect(node, newPath);
+            }}
           >
             {/* Renaming node */}
             {isRenaming && selectedNode?.id === node.id ? (
@@ -229,7 +258,7 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({
             ) : (
               // Displaying regular node
               <span data-testid={`folder-name-${node.id}`}>
-                {node.type === FILE_TYPE.FOLDER ? '📁' : '📄'} {node.name}
+                {isFolder ? (isExpanded ? '📂' : '📁') : '📄'} {node.name}
               </span>
             )}
             {isHovered && (
@@ -273,7 +302,7 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({
           {menuNode === node.id && renderMenuItems(node.id)}
 
           {/* Render subtree */}
-          {node.children && (
+          {isFolder && isExpanded && node.children && (
             <ul className="ml-4">{renderTree(node.children, newPath)}</ul>
           )}
         </li>

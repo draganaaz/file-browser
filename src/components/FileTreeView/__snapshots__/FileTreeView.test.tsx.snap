@@ -17,23 +17,6 @@ exports[`FileTreeView Component matches the snapshot 1`] = `
           📁 public
         </span>
       </div>
-      <ul
-        class="ml-4"
-      >
-        <li
-          class="relative mb-2"
-        >
-          <div
-            class="flex items-center justify-between p-2 rounded hover:bg-gray-200 cursor-pointer"
-          >
-            <span
-              data-testid="folder-name-1-1"
-            >
-              📄 exus-logo.png
-            </span>
-          </div>
-        </li>
-      </ul>
     </li>
     <li
       class="relative mb-2"
@@ -47,36 +30,6 @@ exports[`FileTreeView Component matches the snapshot 1`] = `
           📁 server
         </span>
       </div>
-      <ul
-        class="ml-4"
-      >
-        <li
-          class="relative mb-2"
-        >
-          <div
-            class="flex items-center justify-between p-2 rounded hover:bg-gray-200 cursor-pointer"
-          >
-            <span
-              data-testid="folder-name-2-1"
-            >
-              📄 config.json
-            </span>
-          </div>
-        </li>
-        <li
-          class="relative mb-2"
-        >
-          <div
-            class="flex items-center justify-between p-2 rounded hover:bg-gray-200 cursor-pointer"
-          >
-            <span
-              data-testid="folder-name-2-2"
-            >
-              📄 notes.txt
-            </span>
-          </div>
-        </li>
-      </ul>
     </li>
     <li
       class="relative mb-2"
@@ -90,9 +43,6 @@ exports[`FileTreeView Component matches the snapshot 1`] = `
           📁 src
         </span>
       </div>
-      <ul
-        class="ml-4"
-      />
     </li>
   </ul>
 </DocumentFragment>
