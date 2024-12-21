@@ -29,12 +29,24 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ path, setPath }) => {
   };
 
   return (
-    <div className="text-gray-500 mb-4">
+    <div
+      role="navigation"
+      aria-label="Breadcrumbs"
+      className="text-gray-500 mb-4"
+    >
       {path.map((segment, index) => (
         <span
           key={index}
           className="cursor-pointer"
           onClick={() => handleBreadcrumbClick(index)}
+          tabIndex={0}
+          role="button"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              handleBreadcrumbClick(index);
+            }
+          }}
+          aria-label={`Navigate to ${segment}`}
         >
           {segment} {index < path.length - 1 && ' / '}
         </span>

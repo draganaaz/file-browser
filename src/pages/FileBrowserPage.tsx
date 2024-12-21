@@ -20,8 +20,13 @@ const FileBrowserPage: React.FC = () => {
     <div className="flex flex-col h-screen">
       <Header />
       <div className="flex flex-1 flex-col lg:flex-row">
-        <div className="lg:w-1/3 border-r p-4 w-full">
-          <h2 className="text-lg font-bold mb-2">My Files</h2>
+        <div
+          className="lg:w-1/3 border-r p-4 w-full"
+          aria-labelledby="my-files-header"
+        >
+          <h2 id="my-files-header" className="text-lg font-bold mb-2">
+            My Files
+          </h2>
           <FileTreeView onSelect={handleSelect} />
         </div>
         <div className="flex-1 p-4">

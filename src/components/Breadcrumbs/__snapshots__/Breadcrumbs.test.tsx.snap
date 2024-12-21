@@ -3,20 +3,31 @@
 exports[`Breadcrumbs Component matches the snapshot 1`] = `
 <DocumentFragment>
   <div
+    aria-label="Breadcrumbs"
     class="text-gray-500 mb-4"
+    role="navigation"
   >
     <span
+      aria-label="Navigate to My Files"
       class="cursor-pointer"
+      role="button"
+      tabindex="0"
     >
       My Files  / 
     </span>
     <span
+      aria-label="Navigate to public"
       class="cursor-pointer"
+      role="button"
+      tabindex="0"
     >
       public  / 
     </span>
     <span
+      aria-label="Navigate to images"
       class="cursor-pointer"
+      role="button"
+      tabindex="0"
     >
       images 
     </span>
