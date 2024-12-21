@@ -3,17 +3,17 @@ import ReactQuill from 'react-quill';
 import { FileNode } from '../../types/FileNode';
 import { FILE_TYPE } from '../../constants/fileTree';
 import 'react-quill/dist/quill.snow.css';
+import { useFileTree } from '../../contexts/FileTreeContext';
+import { updateFileContent } from '../../utils/treeService';
 
-interface FileViewerProps {
-  selectedNode: FileNode | null;
-  onUpdateContent: (id: string, content: string) => void;
-}
-
-const FileViewer: React.FC<FileViewerProps> = ({
-  selectedNode,
-  onUpdateContent,
-}) => {
+const FileViewer: React.FC = () => {
   const [content, setContent] = useState<string>('');
+
+  const { selectedNode, setFileTree } = useFileTree();
+
+  const handleUpdateContent = (id: string, updatedContent: string) => {
+    setFileTree((prevTree) => updateFileContent(prevTree, id, updatedContent));
+  };
 
   // Load content when selectedNode changes
   useEffect(() => {
@@ -29,7 +29,7 @@ const FileViewer: React.FC<FileViewerProps> = ({
 
   const handleSave = () => {
     if (selectedNode) {
-      onUpdateContent(selectedNode.id, content);
+      handleUpdateContent(selectedNode.id, content);
     }
   };
 
@@ -77,6 +77,7 @@ const FileViewer: React.FC<FileViewerProps> = ({
             onChange={handleContentChange}
             className="mb-6"
             theme="snow"
+            data-testid="quill-editor"
           />
           <div className="flex justify-end gap-2 mt-4">
             <button

@@ -11,27 +11,11 @@ exports[`FileTreeView Component matches the snapshot 1`] = `
       <div
         class="flex items-center justify-between p-2 rounded hover:bg-gray-200 cursor-pointer"
       >
-        <div
-          class="ml-6 mt-2"
+        <span
+          data-testid="folder-name-1"
         >
-          <input
-            class="border rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-            data-testid="rename-input-field"
-            type="text"
-            value="public"
-          />
-        </div>
-      </div>
-      <div
-        class="ml-6 mt-2"
-      >
-        <input
-          class="border rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-          data-testid="add-input-field"
-          placeholder="Enter folder name"
-          type="text"
-          value=""
-        />
+          📁 public
+        </span>
       </div>
       <div
         class="absolute right-[-160px] top-0 bg-white border rounded shadow-md p-1 w-40 z-30 menu-container"

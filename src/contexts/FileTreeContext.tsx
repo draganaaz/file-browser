@@ -3,6 +3,7 @@ import React, {
   Dispatch,
   ReactNode,
   SetStateAction,
+  SyntheticEvent,
   useCallback,
   useContext,
   useState,
@@ -12,6 +13,7 @@ import {
   filterTree,
   findNodeById,
   handleAddNode,
+  handleDeleteNode,
   handleRenameNode,
 } from '../utils/treeService';
 import { debounce } from '../utils/debounce';
@@ -38,6 +40,9 @@ export interface FileTreeContextProps {
   handleRename: (nodeId: string, newName: string) => void;
   isRenaming: boolean;
   setIsRenaming: Dispatch<SetStateAction<boolean>>;
+  selectedNode: FileNode | null;
+  setSelectedNode: Dispatch<SetStateAction<FileNode | null>>;
+  handleDelete: (e: SyntheticEvent, nodeId: string) => void;
 }
 
 const FileTreeContext = createContext<FileTreeContextProps | undefined>(
@@ -57,11 +62,9 @@ export const FileTreeProvider: React.FC<{
   const [itemType, setItemType] = useState<FILE_TYPE | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [isRenaming, setIsRenaming] = useState(false);
+  const [selectedNode, setSelectedNode] = useState<FileNode | null>(null);
 
-  const debouncedSearch = useCallback(
-    debounce((value: string) => setFilter(value), 500),
-    []
-  );
+  const searchTree = debounce((value: string) => setFilter(value), 500);
 
   const filteredTree = filterTree(fileTree, filter);
 
@@ -145,12 +148,24 @@ export const FileTreeProvider: React.FC<{
     setErrorMessage('');
   };
 
+  const handleDelete = (e: SyntheticEvent, nodeId: string) => {
+    e.stopPropagation();
+
+    setFileTree((prevTree) => handleDeleteNode(prevTree, nodeId));
+
+    if (selectedNode?.id === nodeId) {
+      setSelectedNode(null);
+    }
+
+    closeMenus();
+  };
+
   return (
     <FileTreeContext.Provider
       value={{
         fileTree: filteredTree,
         setFileTree,
-        searchTree: debouncedSearch,
+        searchTree,
         handleAdd,
         fileExtension,
         setFileExtension,
@@ -167,6 +182,9 @@ export const FileTreeProvider: React.FC<{
         handleRename,
         isRenaming,
         setIsRenaming,
+        selectedNode,
+        setSelectedNode,
+        handleDelete,
       }}
     >
       {children}

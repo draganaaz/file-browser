@@ -1,29 +1,21 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, SyntheticEvent } from 'react';
 import { FILE_TYPE, MENU_ITEMS } from '../../constants/fileTree';
 import { FileNode } from '../../types/FileNode';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { useFileTree } from '../../contexts/FileTreeContext';
+import { handleDeleteNode } from '../../utils/treeService';
 
 interface FileTreeViewProps {
-  onDelete: (nodeId: string) => void;
   onSelect: (node: FileNode, path: string[]) => void;
-  selectedNode: FileNode | null;
 }
 
-const FileTreeView: React.FC<FileTreeViewProps> = ({
-  onDelete,
-  onSelect,
-  selectedNode,
-}) => {
+const FileTreeView: React.FC<FileTreeViewProps> = ({ onSelect }) => {
   const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
 
-  const menuRef = useRef<HTMLDivElement>(null);
-  // TODO: Don't export what's not needed
   const {
     fileTree,
     setFileTree,
     handleAdd,
-    fileExtension,
     setFileExtension,
     activeParentId,
     setActiveParentId,
@@ -38,7 +30,12 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({
     handleRename,
     isRenaming,
     setIsRenaming,
+    selectedNode,
+    handleDelete,
   } = useFileTree();
+
+  const menuRef = useRef<HTMLDivElement>(null);
+  useOutsideClick(menuRef, () => closeMenus());
 
   const toggleNode = (nodeId: string, nodes: FileNode[]): FileNode[] =>
     nodes.map((node) => {
@@ -54,8 +51,6 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({
   const handleToggle = (nodeId: string) => {
     setFileTree((prevData) => toggleNode(nodeId, prevData));
   };
-
-  useOutsideClick(menuRef, () => closeMenus());
 
   // Initializes the addition process by setting state
   const startAdd = (parentId: string, type: FILE_TYPE, extension?: string) => {
@@ -180,9 +175,7 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({
                 </button>
                 <button
                   onClick={(e) => {
-                    e.stopPropagation();
-                    onDelete(node.id);
-                    closeMenus();
+                    handleDelete(e, node.id);
                   }}
                   className="text-red-500 hover:underline"
                   data-testid="delete-button"

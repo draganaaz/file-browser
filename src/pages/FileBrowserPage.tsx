@@ -2,49 +2,18 @@ import React, { useState } from 'react';
 import FileTreeView from '../components/FileTreeView/FileTreeView';
 import { FileNode } from '../types/FileNode';
 import Header from '../components/Header/Header';
-import { handleDeleteNode, updateFileContent } from '../utils/treeService';
 import FileViewer from '../components/FileViewer/FileViewer';
 import Breadcrumbs from '../components/Breadcrumbs/Breadcrumbs';
 import { useFileTree } from '../contexts/FileTreeContext';
 
 const FileBrowserPage: React.FC = () => {
-  const [selectedNode, setSelectedNode] = useState<FileNode | null>(null);
   const [currentPath, setCurrentPath] = useState<string[]>(['My Files']);
 
-  const { fileTree, setFileTree } = useFileTree();
-
-  const handleDelete = (nodeId: string) => {
-    setFileTree((prevTree) => handleDeleteNode(prevTree, nodeId));
-    if (selectedNode?.id === nodeId) {
-      setSelectedNode(null);
-    }
-  };
+  const { setSelectedNode } = useFileTree();
 
   const handleSelect = (node: FileNode, path: string[]) => {
     setSelectedNode(node);
     setCurrentPath(path);
-  };
-
-  const handleUpdateContent = (id: string, updatedContent: string) => {
-    setFileTree((prevTree) => updateFileContent(prevTree, id, updatedContent));
-  };
-
-  const handleBreadcrumbClick = (index: number) => {
-    const newPath: string[] = ['My Files'];
-    let currentNode: FileNode | null = null;
-    let currentTree = fileTree;
-
-    // Iterate through the breadcrumb segments up to the clicked index
-    for (let i = 1; i <= index; i++) {
-      const segment = currentPath[i];
-      newPath.push(segment);
-
-      currentNode = currentTree.find((node) => node.name === segment) || null;
-      currentTree = currentNode?.children || [];
-    }
-
-    setCurrentPath(newPath);
-    setSelectedNode(currentNode);
   };
 
   return (
@@ -53,18 +22,11 @@ const FileBrowserPage: React.FC = () => {
       <div className="flex flex-1 flex-col lg:flex-row">
         <div className="lg:w-1/3 border-r p-4 w-full">
           <h2 className="text-lg font-bold mb-2">My Files</h2>
-          <FileTreeView
-            onDelete={handleDelete}
-            onSelect={handleSelect}
-            selectedNode={selectedNode}
-          />
+          <FileTreeView onSelect={handleSelect} />
         </div>
         <div className="flex-1 p-4">
-          <Breadcrumbs path={currentPath} onClick={handleBreadcrumbClick} />
-          <FileViewer
-            selectedNode={selectedNode}
-            onUpdateContent={handleUpdateContent}
-          />
+          <Breadcrumbs path={currentPath} setPath={setCurrentPath} />
+          <FileViewer />
         </div>
       </div>
     </div>
