@@ -24,6 +24,7 @@ Unit tests are written with **Jest** to ensure key functionalities are covered.
 - Context menus for actions such as "Add New", "Rename", "Delete", and "Details".
 - Real-time updates when adding, renaming, or deleting files and folders.
 - Input validation to ensure unique and valid file/folder names.
+- Folders are expanded by default when a new folder is created.
 
 #### 2. Viewer/Editor
 
@@ -50,8 +51,11 @@ Unit tests are written with **Jest** to ensure key functionalities are covered.
 - **Validation and Error Handling**:
   - Ensures valid file names and extensions.
   - Provides clear error messages for invalid operations.
-- **Modal Support**:
-  - Displays detailed information about files and folders in a modal.
+- **Accessibility Enhancements**:
+  - Added ARIA roles and labels for better screen reader support.
+  - Improved keyboard navigation for file tree and input fields.
+- **Theming** (planned for future):
+  - Light and dark mode options for better user experience.
 
 ---
 
@@ -68,6 +72,23 @@ interface FileNode {
   type: FILE_TYPE; // Either 'FILE' or 'FOLDER'
   fileContent?: string; // For file nodes only
   children?: FileNode[]; // For folder nodes only
+  isExpanded?: boolean; // Tracks whether a folder is expanded
   createdAt?: Date; // Metadata for details
 }
 ```
+
+### Deployment Instructions
+
+This project uses **GitHub Actions** for CI/CD. The application is deployed to **GitHub Pages**. Follow the steps below for deployment:
+
+#### Prerequisites
+
+- Ensure `npm` and `node` are installed.
+- Run `npm i`
+- Deploy is triggered on push to `master` branch.
+
+#### Steps to Deploy Locally
+
+1. Run `npm install` to install dependencies.
+2. Run `npm run build` to build the application.
+3. Run `npm run deploy` to deploy the application to GitHub Pages.

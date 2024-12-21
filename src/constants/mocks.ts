@@ -11,7 +11,8 @@ export const initialData: FileNode[] = [
         id: '1-1',
         name: 'exus-logo.png',
         type: FILE_TYPE.FILE,
-        fileContent: '/exus.png',
+        fileContent:
+          'https://www.in-prep.eu/wp-content/uploads/2017/10/inprep-partner-logos-07-300x200.png',
       },
     ],
   },
