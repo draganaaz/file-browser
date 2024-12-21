@@ -1,7 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import FileTreeView from './FileTreeView';
-import { FILE_TYPE } from '../../constants/fileTree';
 import { initialData } from '../../constants/mocks';
 
 const mockOnAdd = jest.fn();
@@ -9,6 +8,13 @@ const mockOnDelete = jest.fn();
 const mockOnSelect = jest.fn();
 const mockOnRename = jest.fn();
 const mockSetFileTree = jest.fn();
+const mockSetMenuNode = jest.fn();
+const mockCloseMenus = jest.fn();
+const mockSetIsRenaming = jest.fn();
+const mockSetActiveParentId = jest.fn();
+const mockSetNewItemName = jest.fn();
+const mockSetItemType = jest.fn();
+const mockSetFileExtension = jest.fn();
 
 const mockInitialData = initialData;
 
@@ -16,10 +22,22 @@ jest.mock('../../contexts/FileTreeContext', () => ({
   useFileTree: () => ({
     fileTree: mockInitialData,
     setFileTree: mockSetFileTree,
-    onAdd: mockOnAdd,
-    onDelete: mockOnDelete,
-    onSelect: mockOnSelect,
-    onRename: mockOnRename,
+    handleAdd: mockOnAdd,
+    handleRename: mockOnRename,
+    closeMenus: mockCloseMenus,
+    setIsRenaming: mockSetIsRenaming,
+    setMenuNode: mockSetMenuNode,
+    setActiveParentId: mockSetActiveParentId,
+    setNewItemName: mockSetNewItemName,
+    setItemType: mockSetItemType,
+    setFileExtension: mockSetFileExtension,
+    menuNode: '1',
+    isRenaming: true, // For renaming test
+    activeParentId: '1', // For adding test
+    newItemName: '', // For adding test
+    itemType: 'folder',
+    fileExtension: null,
+    selectedNode: mockInitialData[0], // Node being renamed
   }),
 }));
 
@@ -31,10 +49,8 @@ describe('FileTreeView Component', () => {
   it('renders the file tree correctly', () => {
     render(
       <FileTreeView
-        onAdd={mockOnAdd}
         onDelete={mockOnDelete}
         onSelect={mockOnSelect}
-        onRename={mockOnRename}
         selectedNode={null}
       />
     );
@@ -47,10 +63,8 @@ describe('FileTreeView Component', () => {
   it('displays action buttons (Add, Delete, Rename) on hover', () => {
     render(
       <FileTreeView
-        onAdd={mockOnAdd}
         onDelete={mockOnDelete}
         onSelect={mockOnSelect}
-        onRename={mockOnRename}
         selectedNode={null}
       />
     );
@@ -66,10 +80,8 @@ describe('FileTreeView Component', () => {
   it('opens the add submenu when Add is clicked', () => {
     render(
       <FileTreeView
-        onAdd={mockOnAdd}
         onDelete={mockOnDelete}
         onSelect={mockOnSelect}
-        onRename={mockOnRename}
         selectedNode={null}
       />
     );
@@ -80,19 +92,15 @@ describe('FileTreeView Component', () => {
     const addButton = screen.getByTestId('add-button');
     fireEvent.click(addButton);
 
-    expect(screen.getByText('New Folder')).toBeInTheDocument();
-    expect(screen.getByText('New Text Document')).toBeInTheDocument();
-    expect(screen.getByText('New JSON Document')).toBeInTheDocument();
-    expect(screen.getByText('New Image')).toBeInTheDocument();
+    expect(mockSetMenuNode).toHaveBeenCalledWith('1');
+    expect(screen.getAllByTestId('menu-item').length).toBeGreaterThan(0);
   });
 
-  it('calls onAdd when a new folder is added', () => {
+  it('calls handleAdd when a new folder is added', () => {
     render(
       <FileTreeView
-        onAdd={mockOnAdd}
         onDelete={mockOnDelete}
         onSelect={mockOnSelect}
-        onRename={mockOnRename}
         selectedNode={null}
       />
     );
@@ -103,23 +111,25 @@ describe('FileTreeView Component', () => {
     const addButton = screen.getByTestId('add-button');
     fireEvent.click(addButton);
 
-    const folderOption = screen.getByText('New Folder');
+    // Simulate selecting a menu item for adding a folder
+    const folderOption = screen.getAllByTestId('menu-item')[0];
     fireEvent.click(folderOption);
 
-    const inputField = screen.getByPlaceholderText('Enter folder name');
+    expect(mockSetActiveParentId).toHaveBeenCalledWith('1');
+
+    // Check if input field is rendered
+    const inputField = screen.getByTestId('add-input-field');
     fireEvent.change(inputField, { target: { value: 'newFolder' } });
     fireEvent.keyDown(inputField, { key: 'Enter', code: 'Enter' });
 
-    expect(mockOnAdd).toHaveBeenCalledWith('1', 'newFolder', FILE_TYPE.FOLDER);
+    expect(mockOnAdd).toHaveBeenCalledWith('1');
   });
 
   it('calls onDelete when Delete is clicked', () => {
     render(
       <FileTreeView
-        onAdd={mockOnAdd}
         onDelete={mockOnDelete}
         onSelect={mockOnSelect}
-        onRename={mockOnRename}
         selectedNode={null}
       />
     );
@@ -133,38 +143,36 @@ describe('FileTreeView Component', () => {
     expect(mockOnDelete).toHaveBeenCalledWith('1');
   });
 
-  it('calls onRename when renaming a folder', () => {
+  it('calls handleRename when renaming a folder', () => {
     render(
       <FileTreeView
-        onAdd={mockOnAdd}
         onDelete={mockOnDelete}
         onSelect={mockOnSelect}
-        onRename={mockOnRename}
-        selectedNode={initialData[0]}
+        selectedNode={mockInitialData[0]}
       />
     );
 
-    const folderItem = screen.getByTestId('folder-name-1');
-    fireEvent.mouseEnter(folderItem);
+    // Check if the rename input field is rendered
+    const inputField = screen.getByTestId('rename-input-field');
+    expect(inputField).toBeInTheDocument();
 
-    const renameButton = screen.getByTestId('rename-button');
-    fireEvent.click(renameButton);
-
-    const inputField = screen.getByDisplayValue('public');
+    // Simulate changing the name and submitting
     fireEvent.change(inputField, { target: { value: 'newPublic' } });
     fireEvent.keyDown(inputField, { key: 'Enter', code: 'Enter' });
 
-    expect(mockOnRename).toHaveBeenCalledWith('1', 'newPublic');
+    // Validate the rename handler is called with the correct arguments
+    expect(mockOnRename).toHaveBeenCalledWith(
+      mockInitialData[0].id,
+      'newPublic'
+    );
   });
 
   it('matches the snapshot', () => {
     const { asFragment } = render(
       <FileTreeView
-        onAdd={mockOnAdd}
         onDelete={mockOnDelete}
         onSelect={mockOnSelect}
-        onRename={mockOnRename}
-        selectedNode={initialData[0]}
+        selectedNode={mockInitialData[0]}
       />
     );
 

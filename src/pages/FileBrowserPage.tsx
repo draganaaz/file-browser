@@ -1,14 +1,8 @@
 import React, { useState } from 'react';
 import FileTreeView from '../components/FileTreeView/FileTreeView';
 import { FileNode } from '../types/FileNode';
-import { FILE_TYPE } from '../constants/fileTree';
 import Header from '../components/Header/Header';
-import {
-  handleAddNode,
-  handleDeleteNode,
-  handleRenameNode,
-  updateFileContent,
-} from '../utils/treeService';
+import { handleDeleteNode, updateFileContent } from '../utils/treeService';
 import FileViewer from '../components/FileViewer/FileViewer';
 import Breadcrumbs from '../components/Breadcrumbs/Breadcrumbs';
 import { useFileTree } from '../contexts/FileTreeContext';
@@ -18,10 +12,6 @@ const FileBrowserPage: React.FC = () => {
   const [currentPath, setCurrentPath] = useState<string[]>(['My Files']);
 
   const { fileTree, setFileTree } = useFileTree();
-
-  const handleAdd = (parentId: string, name: string, type: FILE_TYPE) => {
-    setFileTree((prevTree) => handleAddNode(prevTree, parentId, name, type));
-  };
 
   const handleDelete = (nodeId: string) => {
     setFileTree((prevTree) => handleDeleteNode(prevTree, nodeId));
@@ -33,10 +23,6 @@ const FileBrowserPage: React.FC = () => {
   const handleSelect = (node: FileNode, path: string[]) => {
     setSelectedNode(node);
     setCurrentPath(path);
-  };
-
-  const handleRename = (nodeId: string, newName: string) => {
-    setFileTree((prevTree) => handleRenameNode(prevTree, nodeId, newName));
   };
 
   const handleUpdateContent = (id: string, updatedContent: string) => {
@@ -68,10 +54,8 @@ const FileBrowserPage: React.FC = () => {
         <div className="lg:w-1/3 border-r p-4 w-full">
           <h2 className="text-lg font-bold mb-2">My Files</h2>
           <FileTreeView
-            onAdd={handleAdd}
             onDelete={handleDelete}
             onSelect={handleSelect}
-            onRename={handleRename}
             selectedNode={selectedNode}
           />
         </div>
