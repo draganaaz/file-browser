@@ -4,14 +4,24 @@ exports[`Header Component matches snapshot 1`] = `
 <DocumentFragment>
   <header
     class="w-full p-4 bg-blue-500 text-white shadow-md flex flex-col items-center gap-4 md:flex-row md:justify-start md:items-center"
+    role="banner"
   >
     <h1
       class="text-2xl font-bold text-center md:text-left"
+      id="file-browser-title"
     >
       File Browser
     </h1>
+    <label
+      class="sr-only"
+      for="file-filter-input"
+    >
+      Filter files
+    </label>
     <input
+      aria-labelledby="file-browser-title"
       class="w-full max-w-xs p-2 rounded text-gray-700 md:w-auto"
+      id="file-filter-input"
       placeholder="Filter files..."
       type="text"
     />

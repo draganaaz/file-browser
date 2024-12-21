@@ -63,7 +63,11 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({ onSelect }) => {
 
   const renderAddInputField = (node: FileNode) => (
     <div className="ml-6 mt-2">
+      <label htmlFor={`add-input-${node.id}`} className="sr-only">
+        Enter {itemType === FILE_TYPE.FOLDER ? 'folder' : 'file'} name
+      </label>
       <input
+        id={`add-input-${node.id}`}
         type="text"
         placeholder={`Enter ${itemType === FILE_TYPE.FOLDER ? 'folder' : 'file'} name`}
         value={newItemName}
@@ -77,16 +81,27 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({ onSelect }) => {
         autoFocus
         className="border rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
         data-testid="add-input-field"
+        aria-invalid={!!errorMessage}
+        aria-describedby={`error-message-${node.id}`}
       />
       {errorMessage && (
-        <p className="text-red-500 text-sm mt-1">{errorMessage}</p>
+        <p
+          id={`error-message-${node.id}`}
+          className="text-red-500 text-sm mt-1"
+        >
+          {errorMessage}
+        </p>
       )}
     </div>
   );
 
   const renderRenameInputField = (node: FileNode) => (
     <div className="ml-6 mt-2">
+      <label htmlFor={`rename-input-${node.id}`} className="sr-only">
+        Rename {node.name}
+      </label>
       <input
+        id={`rename-input-${node.id}`}
         type="text"
         defaultValue={node.name}
         onBlur={(e) => handleRename(node.id, e.target.value)}
@@ -96,9 +111,16 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({ onSelect }) => {
         autoFocus
         className="border rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
         data-testid="rename-input-field"
+        aria-invalid={!!errorMessage}
+        aria-describedby={`error-message-${node.id}`}
       />
       {errorMessage && (
-        <p className="text-red-500 text-sm mt-1">{errorMessage}</p>
+        <p
+          id={`error-message-${node.id}`}
+          className="text-red-500 text-sm mt-1"
+        >
+          {errorMessage}
+        </p>
       )}
     </div>
   );
@@ -137,6 +159,9 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({ onSelect }) => {
             onClick={() => {
               onSelect(node, newPath);
             }}
+            role="treeitem"
+            aria-expanded={isFolder ? isExpanded : undefined}
+            aria-label={node.name}
           >
             <div className="flex items-center">
               {isFolder && (
@@ -148,6 +173,7 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({ onSelect }) => {
                   className="mr-1 text-gray-500 hover:text-gray-700 focus:outline-none"
                   data-testid={`toggle-button-${node.id}`}
                   aria-label={isExpanded ? 'Collapse folder' : 'Expand folder'}
+                  aria-expanded={isExpanded}
                 >
                   {isExpanded ? '⏷' : '⏵'}
                 </button>
@@ -172,6 +198,7 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({ onSelect }) => {
                     }}
                     className="text-blue-500 hover:underline"
                     data-testid="add-button"
+                    aria-label="Add item"
                   >
                     Add
                   </button>
@@ -180,6 +207,7 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({ onSelect }) => {
                   onClick={() => setIsRenaming(true)}
                   className="text-blue-500 hover:underline"
                   data-testid="rename-button"
+                  aria-label="Rename item"
                 >
                   Rename
                 </button>
@@ -189,6 +217,7 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({ onSelect }) => {
                   }}
                   className="text-red-500 hover:underline"
                   data-testid="delete-button"
+                  aria-label="Delete item"
                 >
                   Delete
                 </button>
@@ -200,18 +229,22 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({ onSelect }) => {
 
           {/* Render subtree */}
           {isFolder && isExpanded && node.children && (
-            <ul className="ml-4">{renderTree(node.children, newPath)}</ul>
+            <ul
+              className="ml-4"
+              role="group"
+              aria-label={`Contents of ${node.name}`}
+            >
+              {renderTree(node.children, newPath)}
+            </ul>
           )}
         </li>
       );
     });
 
   return (
-    <>
-      <ul className="p-2">
-        {fileTree.length > 0 ? renderTree(fileTree) : <p>No files available</p>}
-      </ul>
-    </>
+    <ul className="p-2" role="tree" aria-label="File Tree">
+      {fileTree.length > 0 ? renderTree(fileTree) : <p>No files available</p>}
+    </ul>
   );
 };
 

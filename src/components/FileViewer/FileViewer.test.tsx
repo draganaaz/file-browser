@@ -38,13 +38,13 @@ describe('FileViewer Component', () => {
     mockSelectedNode = null;
   });
 
-  test('renders no file selected message', () => {
+  it('renders no file selected message', () => {
     render(<FileViewer />);
 
     expect(screen.getByTestId('no-file-selected')).toBeInTheDocument();
   });
 
-  test('renders folder contents', () => {
+  it('renders folder contents', () => {
     mockSelectedNode = {
       id: '1',
       name: 'public',
@@ -64,7 +64,7 @@ describe('FileViewer Component', () => {
     expect(screen.getByTestId('folder-item')).toBeInTheDocument();
   });
 
-  test('renders file contents', () => {
+  it('renders file contents', () => {
     mockSelectedNode = {
       id: '2-2',
       name: 'notes.txt',
@@ -81,7 +81,7 @@ describe('FileViewer Component', () => {
     );
   });
 
-  test('updates file content on save', () => {
+  it('updates file content on save', () => {
     mockSelectedNode = {
       id: '2-2',
       name: 'notes.txt',
@@ -98,7 +98,7 @@ describe('FileViewer Component', () => {
     expect(mockSetFileTree).toHaveBeenCalledWith(expect.any(Function));
   });
 
-  test('reverts file content on discard', () => {
+  it('reverts file content on discard', () => {
     mockSelectedNode = {
       id: '2-2',
       name: 'notes.txt',
@@ -114,7 +114,7 @@ describe('FileViewer Component', () => {
     expect(quillEditor).toHaveValue(mockSelectedNode.fileContent);
   });
 
-  test('renders image file', () => {
+  it('renders image file', () => {
     mockSelectedNode = {
       id: '1-1',
       name: 'exus-logo.png',
@@ -126,5 +126,10 @@ describe('FileViewer Component', () => {
     const image = screen.getByTestId('image-file');
     expect(image).toBeInTheDocument();
     expect(image).toHaveAttribute('src', mockSelectedNode.fileContent);
+  });
+
+  it('matches snapshot', () => {
+    const { asFragment } = render(<FileViewer />);
+    expect(asFragment()).toMatchSnapshot();
   });
 });

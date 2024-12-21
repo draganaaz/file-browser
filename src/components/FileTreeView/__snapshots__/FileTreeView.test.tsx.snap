@@ -3,18 +3,24 @@
 exports[`FileTreeView Component matches the snapshot 1`] = `
 <DocumentFragment>
   <ul
+    aria-label="File Tree"
     class="p-2"
+    role="tree"
   >
     <li
       class="relative mb-2"
     >
       <div
+        aria-expanded="false"
+        aria-label="public"
         class="flex items-center justify-between p-2 rounded hover:bg-gray-200 cursor-pointer"
+        role="treeitem"
       >
         <div
           class="flex items-center"
         >
           <button
+            aria-expanded="false"
             aria-label="Expand folder"
             class="mr-1 text-gray-500 hover:text-gray-700 focus:outline-none"
             data-testid="toggle-button-1"
@@ -62,12 +68,16 @@ exports[`FileTreeView Component matches the snapshot 1`] = `
       class="relative mb-2"
     >
       <div
+        aria-expanded="false"
+        aria-label="server"
         class="flex items-center justify-between p-2 rounded hover:bg-gray-200 cursor-pointer"
+        role="treeitem"
       >
         <div
           class="flex items-center"
         >
           <button
+            aria-expanded="false"
             aria-label="Expand folder"
             class="mr-1 text-gray-500 hover:text-gray-700 focus:outline-none"
             data-testid="toggle-button-2"
@@ -87,12 +97,16 @@ exports[`FileTreeView Component matches the snapshot 1`] = `
       class="relative mb-2"
     >
       <div
+        aria-expanded="false"
+        aria-label="src"
         class="flex items-center justify-between p-2 rounded hover:bg-gray-200 cursor-pointer"
+        role="treeitem"
       >
         <div
           class="flex items-center"
         >
           <button
+            aria-expanded="false"
             aria-label="Expand folder"
             class="mr-1 text-gray-500 hover:text-gray-700 focus:outline-none"
             data-testid="toggle-button-3"
