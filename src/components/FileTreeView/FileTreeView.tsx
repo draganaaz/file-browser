@@ -1,55 +1,41 @@
-import React, {
-  useState,
-  useRef,
-  useCallback,
-  Dispatch,
-  SetStateAction,
-} from 'react';
-import {
-  FILE_TYPE,
-  MENU_ITEMS,
-  VALID_EXTENSIONS,
-} from '../../constants/fileTree';
+import React, { useState, useRef, SyntheticEvent } from 'react';
+import { FILE_TYPE, MENU_ITEMS } from '../../constants/fileTree';
 import { FileNode } from '../../types/FileNode';
-import { isValidFileName } from '../../utils/validations';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
-import { findNodeById } from '../../utils/treeService';
+import { useFileTree } from '../../contexts/FileTreeContext';
+import { handleDeleteNode } from '../../utils/treeService';
 
 interface FileTreeViewProps {
-  data: FileNode[];
-  setData: Dispatch<SetStateAction<FileNode[]>>;
-  onAdd: (parentId: string, name: string, type: FILE_TYPE) => void;
-  onDelete: (nodeId: string) => void;
   onSelect: (node: FileNode, path: string[]) => void;
-  onRename: (nodeId: string, newName: string) => void;
-  selectedNode: FileNode | null;
 }
 
-const FileTreeView: React.FC<FileTreeViewProps> = ({
-  data,
-  setData,
-  onAdd,
-  onDelete,
-  onRename,
-  onSelect,
-  selectedNode,
-}) => {
-  const [menuNode, setMenuNode] = useState<string | null>(null);
-  const [activeParentId, setActiveParentId] = useState<string | null>(null);
-  const [newItemName, setNewItemName] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
-  const [fileExtension, setFileExtension] = useState<string | null>(null);
-  const [itemType, setItemType] = useState<FILE_TYPE | null>(null);
-  const [isRenaming, setIsRenaming] = useState(false);
+const FileTreeView: React.FC<FileTreeViewProps> = ({ onSelect }) => {
   const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
 
-  const menuRef = useRef<HTMLDivElement>(null);
+  const {
+    fileTree,
+    setFileTree,
+    handleAdd,
+    setFileExtension,
+    activeParentId,
+    setActiveParentId,
+    itemType,
+    newItemName,
+    setNewItemName,
+    setItemType,
+    closeMenus,
+    errorMessage,
+    menuNode,
+    setMenuNode,
+    handleRename,
+    isRenaming,
+    setIsRenaming,
+    selectedNode,
+    handleDelete,
+  } = useFileTree();
 
-  const closeMenus = useCallback(() => {
-    setMenuNode(null);
-    setErrorMessage('');
-    setIsRenaming(false);
-  }, []);
+  const menuRef = useRef<HTMLDivElement>(null);
+  useOutsideClick(menuRef, () => closeMenus());
 
   const toggleNode = (nodeId: string, nodes: FileNode[]): FileNode[] =>
     nodes.map((node) => {
@@ -63,111 +49,16 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({
     });
 
   const handleToggle = (nodeId: string) => {
-    setData((prevData) => toggleNode(nodeId, prevData));
+    setFileTree((prevData) => toggleNode(nodeId, prevData));
   };
 
-  useOutsideClick(menuRef, () => closeMenus());
-
-  const handleAdd = (parentId: string, type: FILE_TYPE, extension?: string) => {
+  // Initializes the addition process by setting state
+  const startAdd = (parentId: string, type: FILE_TYPE, extension?: string) => {
     setActiveParentId(parentId);
     setItemType(type);
     extension && setFileExtension(extension);
+
     closeMenus();
-  };
-
-  const handleConfirmAdd = (parentId: string) => {
-    let name = newItemName.trim();
-
-    // When no name provided, discard the input
-    if (!name) {
-      setActiveParentId(null);
-      setNewItemName('');
-      setErrorMessage('');
-      return;
-    }
-
-    if (itemType === FILE_TYPE.FILE) {
-      const nameParts = name.split('.');
-      const nameExtension =
-        nameParts.length > 1 ? nameParts.pop() : fileExtension;
-
-      if (
-        nameExtension &&
-        !Object.values(VALID_EXTENSIONS).includes(nameExtension)
-      ) {
-        setErrorMessage(
-          'Invalid file extension. Please use a valid extension.'
-        );
-        return;
-      }
-      name = nameParts.join('.') + '.' + nameExtension;
-    }
-
-    if (!isValidFileName(name)) {
-      setErrorMessage('Invalid name. Please avoid special characters.');
-      return;
-    }
-
-    const parentFolder = data.find((node) => node.id === parentId);
-    if (parentFolder?.children?.some((child) => child.name === name)) {
-      setErrorMessage(
-        'This item already exists at this location. Please choose a different name.'
-      );
-      return;
-    }
-
-    onAdd(parentId, name, itemType as FILE_TYPE);
-    setActiveParentId(null);
-    setNewItemName('');
-    setErrorMessage('');
-  };
-
-  const handleRename = (nodeId: string, newName: string) => {
-    // Discard any ongoing addition before proceeding to renaming
-    setActiveParentId(null);
-
-    const node = findNodeById(data, nodeId);
-
-    if (!node) {
-      setErrorMessage('File/Folder not found.');
-      return;
-    }
-
-    const nameParts = newName.trim().split('.');
-    const newBaseName = nameParts.slice(0, -1).join('.') || nameParts[0];
-    const newExtension = nameParts.length > 1 ? nameParts.pop() : null;
-
-    if (node.type === FILE_TYPE.FILE) {
-      const originalExtension = node.name.split('.').pop();
-
-      // If no extension is provided, use the original one
-      const finalExtension = newExtension || originalExtension;
-
-      // Validate the new extension
-      if (
-        finalExtension &&
-        !Object.values(VALID_EXTENSIONS).includes(finalExtension)
-      ) {
-        setErrorMessage(
-          `Invalid file extension. You must use a valid extension.`
-        );
-        return;
-      }
-
-      newName = newBaseName + (finalExtension ? `.${finalExtension}` : '');
-    } else {
-      newName = newBaseName; // For folders, avoid adding any extensions.
-    }
-
-    // Validate the full name
-    if (!isValidFileName(newName)) {
-      setErrorMessage('Invalid name. Please avoid special characters.');
-      return;
-    }
-
-    onRename(nodeId, newName);
-    setIsRenaming(false);
-    setErrorMessage('');
   };
 
   const renderAddInputField = (node: FileNode) => (
@@ -178,13 +69,14 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({
         value={newItemName}
         onChange={(e) => setNewItemName(e.target.value)}
         onKeyDown={(e) => {
-          e.key === 'Enter' && handleConfirmAdd(node.id);
+          e.key === 'Enter' && handleAdd(node.id);
         }}
         onBlur={() => {
-          handleConfirmAdd(node.id);
+          handleAdd(node.id);
         }}
         autoFocus
         className="border rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+        data-testid="add-input-field"
       />
       {errorMessage && (
         <p className="text-red-500 text-sm mt-1">{errorMessage}</p>
@@ -203,6 +95,7 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({
         }
         autoFocus
         className="border rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+        data-testid="rename-input-field"
       />
       {errorMessage && (
         <p className="text-red-500 text-sm mt-1">{errorMessage}</p>
@@ -218,7 +111,7 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({
       {MENU_ITEMS.map((item) => (
         <button
           key={item.label}
-          onClick={() => handleAdd(nodeId, item.type, item.extension)}
+          onClick={() => startAdd(nodeId, item.type, item.extension)}
           className="w-full px-2 py-1 text-left hover:bg-gray-200"
           data-testid="menu-item"
         >
@@ -282,9 +175,7 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({
                 </button>
                 <button
                   onClick={(e) => {
-                    e.stopPropagation();
-                    onDelete(node.id);
-                    closeMenus();
+                    handleDelete(e, node.id);
                   }}
                   className="text-red-500 hover:underline"
                   data-testid="delete-button"
@@ -308,7 +199,7 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({
   return (
     <>
       <ul className="p-2">
-        {data.length > 0 ? renderTree(data) : <p>No files available</p>}
+        {fileTree.length > 0 ? renderTree(fileTree) : <p>No files available</p>}
       </ul>
     </>
   );

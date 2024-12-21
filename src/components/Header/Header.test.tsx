@@ -2,31 +2,39 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import Header from './Header';
 
-const mockHandleFilter = jest.fn();
+const mockSearchTree = jest.fn();
+
+jest.mock('../../contexts/FileTreeContext', () => ({
+  useFileTree: () => ({
+    fileTree: [],
+    setFileTree: jest.fn(),
+    searchTree: mockSearchTree,
+  }),
+}));
 
 describe('Header Component', () => {
   beforeEach(() => {
-    mockHandleFilter.mockClear();
+    mockSearchTree.mockClear();
   });
 
   it('renders the header title', () => {
-    render(<Header handleFilter={mockHandleFilter} />);
+    render(<Header />);
     const titleElement = screen.getByText('File Browser');
     expect(titleElement).toBeInTheDocument();
   });
 
-  it('calls handleFilter when input changes', () => {
-    render(<Header handleFilter={mockHandleFilter} />);
+  it('calls searchTree when input changes', () => {
+    render(<Header />);
 
     const inputElement = screen.getByPlaceholderText('Filter files...');
-    fireEvent.change(inputElement, { target: { value: 'test' } });
+    fireEvent.change(inputElement, { target: { value: 'notes' } });
 
-    expect(mockHandleFilter).toHaveBeenCalledTimes(1);
-    expect(mockHandleFilter).toHaveBeenCalledWith('test');
+    expect(mockSearchTree).toHaveBeenCalledTimes(1);
+    expect(mockSearchTree).toHaveBeenCalledWith('notes');
   });
 
   it('matches snapshot', () => {
-    const { asFragment } = render(<Header handleFilter={mockHandleFilter} />);
+    const { asFragment } = render(<Header />);
     expect(asFragment()).toMatchSnapshot();
   });
 });

@@ -1,56 +1,130 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
-import FileViewer from './FileViewer';
-import { FileNode } from '../../types/FileNode';
+import { render, screen, fireEvent } from '@testing-library/react';
+import FileViewer from './FileViewer'; // Adjust the import path if necessary
 import { FILE_TYPE } from '../../constants/fileTree';
+import { FileNode } from '../../types/FileNode';
+
+const mockSetFileTree = jest.fn();
+let mockSelectedNode: FileNode | null;
+
+jest.mock('../../contexts/FileTreeContext', () => ({
+  useFileTree: () => ({
+    selectedNode: mockSelectedNode,
+    setFileTree: mockSetFileTree,
+  }),
+}));
+
+jest.mock('react-quill', () => {
+  return function MockReactQuill({
+    value,
+    onChange,
+  }: {
+    value: string;
+    onChange: (value: string) => void;
+  }) {
+    return (
+      <textarea
+        data-testid="quill-editor"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    );
+  };
+});
 
 describe('FileViewer Component', () => {
-  const mockOnUpdateContent = jest.fn();
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockSelectedNode = null;
+  });
 
-  const folderNode: FileNode = {
-    id: '1',
-    name: 'folder',
-    type: FILE_TYPE.FOLDER,
-    children: [
-      { id: '2', name: 'file.txt', type: FILE_TYPE.FILE, fileContent: '' },
-    ],
-  };
+  test('renders no file selected message', () => {
+    render(<FileViewer />);
 
-  const imageFileNode: FileNode = {
-    id: '3',
-    name: 'image.png',
-    type: FILE_TYPE.FILE,
-  };
+    expect(screen.getByTestId('no-file-selected')).toBeInTheDocument();
+  });
 
-  it('renders placeholder when no file is selected', () => {
-    render(
-      <FileViewer selectedNode={null} onUpdateContent={mockOnUpdateContent} />
+  test('renders folder contents', () => {
+    mockSelectedNode = {
+      id: '1',
+      name: 'public',
+      type: FILE_TYPE.FOLDER,
+      children: [
+        {
+          id: '1-1',
+          name: 'exus-logo.png',
+          type: FILE_TYPE.FILE,
+          fileContent: '/exus.png',
+        },
+      ],
+    };
+    render(<FileViewer />);
+
+    expect(screen.getByText(mockSelectedNode.name)).toBeInTheDocument();
+    expect(screen.getByTestId('folder-item')).toBeInTheDocument();
+  });
+
+  test('renders file contents', () => {
+    mockSelectedNode = {
+      id: '2-2',
+      name: 'notes.txt',
+      type: FILE_TYPE.FILE,
+      fileContent: 'This is a sample text file.',
+    };
+    render(<FileViewer />);
+
+    expect(screen.getByTestId('file-name')).toHaveTextContent(
+      mockSelectedNode.name
     );
-    expect(screen.getByTestId('no-file-selected')).toHaveTextContent(
-      'Select a file or folder to view its contents.'
+    expect(screen.getByTestId('quill-editor')).toHaveValue(
+      mockSelectedNode.fileContent
     );
   });
 
-  it('renders folder content correctly', () => {
-    render(
-      <FileViewer
-        selectedNode={folderNode}
-        onUpdateContent={mockOnUpdateContent}
-      />
-    );
-    expect(screen.getByTestId('file-name')).toHaveTextContent('folder');
-    expect(screen.getAllByTestId('folder-item')).toHaveLength(1);
+  test('updates file content on save', () => {
+    mockSelectedNode = {
+      id: '2-2',
+      name: 'notes.txt',
+      type: FILE_TYPE.FILE,
+      fileContent: 'This is a sample text file.',
+    };
+    render(<FileViewer />);
+
+    const newContent = 'Updated content';
+    const quillEditor = screen.getByTestId('quill-editor');
+    fireEvent.change(quillEditor, { target: { value: newContent } });
+
+    fireEvent.click(screen.getByText('Save'));
+    expect(mockSetFileTree).toHaveBeenCalledWith(expect.any(Function));
   });
 
-  it('renders image file content correctly', () => {
-    render(
-      <FileViewer
-        selectedNode={imageFileNode}
-        onUpdateContent={mockOnUpdateContent}
-      />
-    );
+  test('reverts file content on discard', () => {
+    mockSelectedNode = {
+      id: '2-2',
+      name: 'notes.txt',
+      type: FILE_TYPE.FILE,
+      fileContent: 'This is a sample text file.',
+    };
+    render(<FileViewer />);
+
+    const quillEditor = screen.getByTestId('quill-editor');
+    fireEvent.change(quillEditor, { target: { value: 'Temporary change' } });
+
+    fireEvent.click(screen.getByText('Discard'));
+    expect(quillEditor).toHaveValue(mockSelectedNode.fileContent);
+  });
+
+  test('renders image file', () => {
+    mockSelectedNode = {
+      id: '1-1',
+      name: 'exus-logo.png',
+      type: FILE_TYPE.FILE,
+      fileContent: '/exus.png',
+    };
+    render(<FileViewer />);
+
     const image = screen.getByTestId('image-file');
-
-    expect(image).toHaveAttribute('alt', 'image.png');
+    expect(image).toBeInTheDocument();
+    expect(image).toHaveAttribute('src', mockSelectedNode.fileContent);
   });
 });
