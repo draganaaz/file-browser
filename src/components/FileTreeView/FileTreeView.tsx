@@ -236,15 +236,11 @@ const FileTreeView: React.FC<FileTreeViewProps> = ({
       const newPath = [...path, node.name];
 
       return (
-        <li
-          key={node.id}
-          className="relative mb-2"
-          // TODO: Sometimes doens't work well when moving from one to another
-          onMouseEnter={() => setHoveredNodeId(node.id)}
-          onMouseLeave={() => setHoveredNodeId(null)}
-        >
+        <li key={node.id} className="relative mb-2">
           <div
             className="flex items-center justify-between p-2 rounded hover:bg-gray-200 cursor-pointer"
+            onMouseEnter={() => setHoveredNodeId(node.id)}
+            onMouseLeave={() => setHoveredNodeId(null)}
             onClick={() => {
               if (isFolder) {
                 handleToggle(node.id);
